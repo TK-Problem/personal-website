@@ -11,16 +11,16 @@ about:
       href: https://github.com/TK-Problem
     - icon: linkedin
       text: Linkedin
-      href: https://www.linkedin.com/
+      href: https://www.linkedin.com/in/tomas-k-uzdavinys/
 ---
 
 I am a physics scientist who became a Python developer and risk analyst. My principal expertise is in writing predictive models, web scraping and automation scripts. I also have a passion to explain complicated topics in an easy-to-understand manner.
 
 ## Experience
 
-Quantitative Risk Analyst | SEB | 2022 JAN - Present
+Quantitative Risk Analyst \| SEB \| 2022 JAN - Present
 
-Freelancer | MB "Kristaulitai" | 2019 JAN - Present
+Freelancer \| MB "Kristaulitai" \| 2019 JAN - Present
 
 ## Education
 
@@ -28,5 +28,4 @@ KTH - Royal institute of technology \| PhD, Photonics \| 2014 SEP - 2018 AUG
 
 Vilnius University \| M.S., Optoelectronic materials and technology \| 2012 SEP - 2014 AUG
 
-Vilnius University \| B.A., Modern Technologies and Management \| 2008 SEP - 2012 AUG
----
+## Vilnius University \| B.A., Modern Technologies and Management \| 2008 SEP - 2012 AUG

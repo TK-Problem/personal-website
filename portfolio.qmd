@@ -2,8 +2,40 @@
 title: "Portfolio"
 ---
 
-About this site
+## PhD material
 
-```{r}
-1 + 1
-```
+* PhD thesis [[download PDF](https://bit.ly/2IIHhTV)]
+* PhD defence [[recording on YouTube](https://www.youtube.com/watch?v=oiiRhOMfkf8&)]
+
+## Papers
+
+* S. Marcinkevičius, **T. K. Uždavinys**, H. M. Foronda, D. A. Cohen,
+C. Weisbuch, and J. S. Speck, "Intervalley energy of GaN conduc-
+tion band measured by femtosecond pump-probe spectroscopy", Phys.
+Rev. B 94, 235205 (2016)
+
+* **T. K. Uždavinys**, S. Marcinkevičius, J. H. Leach, K. R. Evans, and
+D. C. Look, "Photoexcited carrier trapping and recombination at Fe
+centers in GaN", J. Appl. Phys. 119, 215706 (2016)
+
+* R. Butté, L. Lahourcade, **T. K. Uždavinys**, G. Callsen, M. Mensi,
+M. Glauser, G. Rossbach, D. Martin, J-F. Carlin, S. Marcinkevičius
+and N. Grandjean, "Optical absorption edge broadening in thick In-
+GaN layers: Random alloy atomic disorder and growth mode induced
+fluctuations", Appl. Phys. Lett., 112, 032106 (2018).
+
+* **T. K. Uždavinys**, S. Marcinkevičius, M. Mensi, L. Lahourcade, J-F.
+Carlin, D. Martin, R. Butté and N. Grandjean, "Impact of surface
+morphology on properties of light emission in InGaN epilayers", Appl.
+Phys. Express 11, 051004 (2018).
+
+* R. Ivanov, S. Marcinkevičius, **T. K. Uždavinys**, L. Y. Kuritzky, S.
+Nakamura, and J. S. Speck, "Scanning near-field microscopy of carrier
+lifetimes in m-plane InGaN quantum wells", Appl. Phys. Lett. 110,
+031109 (2017).
+
+* **T. K. Uždavinys**, D. L. Becerra, R. Ivanov, S. P. DenBaars, S.
+Nakamura, J. S. Speck, and S. Marcinkevičius, "Influence of well width
+fluctuations on recombination properties in semipolar InGaN quantum
+wells studied by time- and spatially-resolved near-field photoluminecence", Opt. Mat. Express, 7(9), 3116-3123 (2017).
+---
