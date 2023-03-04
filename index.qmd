@@ -1,5 +1,5 @@
 ---
-title: "About"
+title: "Tomas K. Uždavinys"
 about:
   template: jolla
   image: images/profile.jpg

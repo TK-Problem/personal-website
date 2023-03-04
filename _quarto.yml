@@ -3,18 +3,17 @@ project:
   output-dir: docs
 
 website:
-  title: "website"
+  title: "Tomas Kristijonas Uždavinys"
+  description: "This is personal Blog."
+  search: false
   navbar:
     left:
       - href: index.qmd
-        text: Home
-      - about.qmd
-
+        text: About
+      - portfolio.qmd
 format:
   html:
-    theme: cosmo
+    theme: litera
     css: styles.css
-    toc: true
 
 editor: visual
-
