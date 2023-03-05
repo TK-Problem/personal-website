@@ -194,7 +194,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<p>This is my the first post in a Quarto blog. Welcome! I decided to create this as a capstone project for Google Data Analytics specialization course. This post will follow 6 step framework presented thought the course.</p>
+<p>Hello and welcome to my first blog post on Quarto! As a part of my Google Data Analytics specialization course capstone project, I have created this blog. In this post, I will be exploring the changes in historical exports of Lithuania over time, using the 6-step framework presented in the course. I hope you enjoy reading about my findings and analysis. Let’s begin!</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="analytics_framework.png" class="img-fluid figure-img" width="767"></p>
@@ -203,11 +203,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <section id="ask" class="level2">
 <h2 class="anchored" data-anchor-id="ask">Ask</h2>
-<p>Changed text for identifying.</p>
+<p>Before diving into data processing and visualization, it’s essential to take note of the following key events: the Covid-19 pandemic since spring 2020, the strained relationship between China and Lithuania due to the Taiwan question, and the Russian invasion of Ukraine in 2022.</p>
+<p>The Covid-19 pandemic has brought unprecedented changes to the global economy, and Lithuania was no exception. The outbreak caused major disruptions in global trade, resulting in a decline in demand for Lithuanian goods and services. On the other hand, Lithuania’s relationship with China has been deteriorating due to the Taiwan question. This has led to a decrease in exports to China, one of Lithuania’s top trading partners.</p>
+<p>The Russian invasion of Ukraine in 2022 has also had a significant impact on Lithuania’s trade patterns. The conflict has resulted in the imposition of economic sanctions on Russia, affecting Lithuania’s trade with its Eastern neighbor. The situation is still developing, and it will be interesting to see how Lithuania’s trade with Russia evolves in the coming years.</p>
 </section>
 <section id="prepare" class="level2">
 <h2 class="anchored" data-anchor-id="prepare">Prepare</h2>
-<p>Data was download from Lithuanian National website https://www.lb.lt/en/export-and-import-of-services-by-country as excel file. It can be found on blog’s Github repo. Data was loaded using <code>tidyverse</code> library and was processed using <code>data.table</code> library.</p>
+<p>The data was downloaded from the Lithuanian National <a href="https://www.lb.lt/en/export-and-import-of-services-by-country">website</a> in an Excel file format. You can also find the same file in my blog’s Github <a href="https://github.com/TK-Problem/personal-website/tree/main/posts/google-analytics-capstone">repo</a>. It was then loaded into R environment using the <code>tidyverse</code> library and processed converted to <code>data.table</code> format.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -229,7 +231,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt[<span class="sc">!</span>(<span class="fu">seq</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(dt), <span class="dv">4</span>))]</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># generate table with first few rows and columns</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(dt[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="fu">c</span>(<span class="dv">41</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(dt[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="fu">c</span>(<span class="dv">41</span>, <span class="dv">1</span>, <span class="dv">38</span>, <span class="dv">39</span>, <span class="dv">40</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
@@ -237,59 +239,59 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <tr class="header">
 <th style="text-align: left;">Country</th>
 <th style="text-align: left;">Type</th>
-<th style="text-align: right;">Q1/2013</th>
-<th style="text-align: right;">Q2/2013</th>
-<th style="text-align: right;">Q3/2013</th>
+<th style="text-align: right;">Q1/2022</th>
+<th style="text-align: right;">Q2/2022</th>
+<th style="text-align: right;">Q3/2022</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Total</td>
 <td style="text-align: left;">Exports</td>
-<td style="text-align: right;">1147.25</td>
-<td style="text-align: right;">1413.83</td>
-<td style="text-align: right;">1425.29</td>
+<td style="text-align: right;">3666.97</td>
+<td style="text-align: right;">4230.51</td>
+<td style="text-align: right;">4615.79</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Total</td>
 <td style="text-align: left;">Imports</td>
-<td style="text-align: right;">896.54</td>
-<td style="text-align: right;">940.78</td>
-<td style="text-align: right;">1025.22</td>
+<td style="text-align: right;">2417.61</td>
+<td style="text-align: right;">2585.59</td>
+<td style="text-align: right;">2814.54</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Total</td>
 <td style="text-align: left;">Balance</td>
-<td style="text-align: right;">250.72</td>
-<td style="text-align: right;">473.05</td>
-<td style="text-align: right;">400.08</td>
+<td style="text-align: right;">1249.36</td>
+<td style="text-align: right;">1644.92</td>
+<td style="text-align: right;">1801.25</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">European Union (27 countries)</td>
 <td style="text-align: left;">Exports</td>
-<td style="text-align: right;">556.84</td>
-<td style="text-align: right;">737.82</td>
-<td style="text-align: right;">728.81</td>
+<td style="text-align: right;">2712.50</td>
+<td style="text-align: right;">3182.83</td>
+<td style="text-align: right;">3343.46</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">European Union (27 countries)</td>
 <td style="text-align: left;">Imports</td>
-<td style="text-align: right;">482.43</td>
-<td style="text-align: right;">519.00</td>
-<td style="text-align: right;">573.32</td>
+<td style="text-align: right;">1646.39</td>
+<td style="text-align: right;">1887.25</td>
+<td style="text-align: right;">2026.76</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">European Union (27 countries)</td>
 <td style="text-align: left;">Balance</td>
-<td style="text-align: right;">74.41</td>
-<td style="text-align: right;">218.81</td>
-<td style="text-align: right;">155.49</td>
+<td style="text-align: right;">1066.11</td>
+<td style="text-align: right;">1295.58</td>
+<td style="text-align: right;">1316.70</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>Placeholder text.</p>
+<p>In the table above, you can see the total exports and imports of all countries, as well as those of the European Union’s (27 countries) for the three most recent quarters. Even before data cleaning and preparation, a visual analysis shows that a majority of exports and imports go to EU countries.</p>
 </section>
 <section id="process" class="level2">
 <h2 class="anchored" data-anchor-id="process">Process</h2>
@@ -508,58 +510,62 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [Coursera, R]</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>This is my the first post in a Quarto blog. Welcome! I decided to create this as a capstone project for Google Data Analytics specialization course. This post will follow 6 step framework presented thought the course.</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>Hello and welcome to my first blog post on Quarto! As a part of my Google Data Analytics specialization course capstone project, I have created this blog. In this post, I will be exploring the changes in historical exports of Lithuania over time, using the 6-step framework presented in the course. I hope you enjoy reading about my findings and analysis. Let's begin!</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="al">![Google Data Analytics framework](analytics_framework.png)</span>{width="767"}</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ask</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>Changed text for identifying.</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>Before diving into data processing and visualization, it's essential to take note of the following key events: the Covid-19 pandemic since spring 2020, the strained relationship between China and Lithuania due to the Taiwan question, and the Russian invasion of Ukraine in 2022.</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prepare</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>The Covid-19 pandemic has brought unprecedented changes to the global economy, and Lithuania was no exception. The outbreak caused major disruptions in global trade, resulting in a decline in demand for Lithuanian goods and services. On the other hand, Lithuania's relationship with China has been deteriorating due to the Taiwan question. This has led to a decrease in exports to China, one of Lithuania's top trading partners.</span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>Data was download from Lithuanian National website https://www.lb.lt/en/export-and-import-of-services-by-country as excel file. It can be found on blog's Github repo. Data was loaded using <span class="in">`tidyverse`</span> library and was processed using <span class="in">`data.table`</span> library.</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>The Russian invasion of Ukraine in 2022 has also had a significant impact on Lithuania's trade patterns. The conflict has resulted in the imposition of economic sanctions on Russia, affecting Lithuania's trade with its Eastern neighbor. The situation is still developing, and it will be interesting to see how Lithuania's trade with Russia evolves in the coming years.</span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co"># read data from excel</span></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"lb_data.xlsx"</span>, <span class="at">sheet =</span> <span class="dv">1</span>, <span class="at">range =</span> <span class="st">"A13:AN201"</span>)</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="co"># convert to data.table object</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(dt)</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co"># rename columns for convinience</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="fu">setnames</span>(dt, <span class="fu">c</span>(<span class="st">"...1"</span>), <span class="st">"Type"</span>)</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="co"># shift columns to get correct names</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>dt[, Country <span class="sc">:</span><span class="er">=</span> <span class="fu">rep</span>(dt[<span class="fu">seq</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(dt), <span class="dv">4</span>), Type], <span class="at">each =</span> <span class="dv">4</span>)]</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt[<span class="sc">!</span>(<span class="fu">seq</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(dt), <span class="dv">4</span>))]</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prepare</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>The data was downloaded from the Lithuanian National <span class="co">[</span><span class="ot">website</span><span class="co">](https://www.lb.lt/en/export-and-import-of-services-by-country)</span> in an Excel file format. You can also find the same file in my blog's Github <span class="co">[</span><span class="ot">repo</span><span class="co">](https://github.com/TK-Problem/personal-website/tree/main/posts/google-analytics-capstone)</span>. It was then loaded into R environment using the <span class="in">`tidyverse`</span> library and processed converted to <span class="in">`data.table`</span> format.</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="co"># read data from excel</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"lb_data.xlsx"</span>, <span class="at">sheet =</span> <span class="dv">1</span>, <span class="at">range =</span> <span class="st">"A13:AN201"</span>)</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co"># convert to data.table object</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(dt)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="co"># rename columns for convinience</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="fu">setnames</span>(dt, <span class="fu">c</span>(<span class="st">"...1"</span>), <span class="st">"Type"</span>)</span>
 <span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co"># generate table with first few rows and columns</span></span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(dt[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="fu">c</span>(<span class="dv">41</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)])</span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co"># shift columns to get correct names</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>dt[, Country <span class="sc">:</span><span class="er">=</span> <span class="fu">rep</span>(dt[<span class="fu">seq</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(dt), <span class="dv">4</span>), Type], <span class="at">each =</span> <span class="dv">4</span>)]</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> dt[<span class="sc">!</span>(<span class="fu">seq</span>(<span class="dv">1</span>, <span class="fu">nrow</span>(dt), <span class="dv">4</span>))]</span>
 <span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>Placeholder text.</span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## Process</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="co"># generate table with first few rows and columns</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(dt[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="fu">c</span>(<span class="dv">41</span>, <span class="dv">1</span>, <span class="dv">38</span>, <span class="dv">39</span>, <span class="dv">40</span>)])</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>In the table above, you can see the total exports and imports of all countries, as well as those of the European Union's (27 countries) for the three most recent quarters. Even before data cleaning and preparation, a visual analysis shows that a majority of exports and imports go to EU countries.</span>
 <span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="fu">## Analyze</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="fu">## Process</span></span>
 <span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</span>
 <span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="fu">## Share</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="fu">## Analyze</span></span>
 <span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</span>
 <span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="fu">## Act</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="fu">## Share</span></span>
 <span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a><span class="fu">## Act</span></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
