@@ -1,21 +1,50 @@
 ---
 title: "Exports in Lithuania"
 author: "Tomas Kristijonas Uždavinys"
+format:
+  html:
+    code-fold: true
+    code-tools: true
 date: "2023-03-05"
 categories: [Coursera, R]
 ---
 
 This is my the first post in a Quarto blog. Welcome! I decided to create this as a capstone project for Google Data Analytics specialization course. This post will follow 6 step framework presented thought the course.
 
-![](thumbnail.png){width="767"}
+![Google Data Analytics framework](analytics_framework.png){width="767"}
 
 ## Ask
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+Changed text for identifying.
 
 ## Prepare
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+Data was download from Lithuanian National website https://www.lb.lt/en/export-and-import-of-services-by-country as excel file. It can be found on blog's Github repo. Data was loaded using `tidyverse` library and was processed using `data.table` library.
+
+```{r}
+#| warning: false
+# load libraries
+library(readxl)
+library(data.table)
+
+# read data from excel
+dt <- read_excel("lb_data.xlsx", sheet = 1, range = "A13:AN201")
+
+# convert to data.table object
+dt <- data.table(dt)
+
+# rename columns for convinience
+setnames(dt, c("...1"), "Type")
+
+# shift columns to get correct names
+dt[, Country := rep(dt[seq(1, nrow(dt), 4), Type], each = 4)]
+dt <- dt[!(seq(1, nrow(dt), 4))]
+
+# generate table with first few rows and columns
+knitr::kable(dt[1:6, c(41, 1, 2, 3, 4)])
+```
+
+Placeholder text.
 
 ## Process
 

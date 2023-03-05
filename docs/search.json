@@ -60,14 +60,14 @@
     "href": "posts/google-analytics-capstone/index.html#ask",
     "title": "Exports in Lithuania",
     "section": "Ask",
-    "text": "Ask\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry’s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+    "text": "Ask\nChanged text for identifying."
   },
   {
     "objectID": "posts/google-analytics-capstone/index.html#prepare",
     "href": "posts/google-analytics-capstone/index.html#prepare",
     "title": "Exports in Lithuania",
     "section": "Prepare",
-    "text": "Prepare\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry’s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+    "text": "Prepare\nData was download from Lithuanian National website https://www.lb.lt/en/export-and-import-of-services-by-country as excel file. It can be found on blog’s Github repo. Data was loaded using tidyverse library and was processed using data.table library.\n\n\nCode\n# load libraries\nlibrary(readxl)\nlibrary(data.table)\n\n# read data from excel\ndt <- read_excel(\"lb_data.xlsx\", sheet = 1, range = \"A13:AN201\")\n\n# convert to data.table object\ndt <- data.table(dt)\n\n# rename columns for convinience\nsetnames(dt, c(\"...1\"), \"Type\")\n\n# shift columns to get correct names\ndt[, Country := rep(dt[seq(1, nrow(dt), 4), Type], each = 4)]\ndt <- dt[!(seq(1, nrow(dt), 4))]\n\n# generate table with first few rows and columns\nknitr::kable(dt[1:6, c(41, 1, 2, 3, 4)])\n\n\n\n\n\nCountry\nType\nQ1/2013\nQ2/2013\nQ3/2013\n\n\n\n\nTotal\nExports\n1147.25\n1413.83\n1425.29\n\n\nTotal\nImports\n896.54\n940.78\n1025.22\n\n\nTotal\nBalance\n250.72\n473.05\n400.08\n\n\nEuropean Union (27 countries)\nExports\n556.84\n737.82\n728.81\n\n\nEuropean Union (27 countries)\nImports\n482.43\n519.00\n573.32\n\n\nEuropean Union (27 countries)\nBalance\n74.41\n218.81\n155.49\n\n\n\n\n\nPlaceholder text."
   },
   {
     "objectID": "posts/google-analytics-capstone/index.html#process",
