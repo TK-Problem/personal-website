@@ -31,6 +31,8 @@ The data was downloaded from the Lithuanian National [website](https://www.lb.lt
 library(readxl)
 library(data.table)
 library(kableExtra)
+library(plotly)
+library(zoo)
 
 # read data from excel
 dt <- read_excel("lb_data.xlsx", sheet = 1, range = "A13:AN201")
@@ -63,7 +65,7 @@ After formatting and sorting the data, I investigated export changes of top 10 l
 ```{r}
 # select exports data and exclude aggregated entires
 agg <- c("Total", "European Union (27 countries)", "Euro Area (18 countries)", "Commonwealth of Independent States", "Offshore financial centers", "Other countries")
-dt.export <- dt[Type == "Exports" & !Country %in% agg]
+dt.export <- copy(dt[Type == "Exports" & !Country %in% agg])
 dt.export[, `Change, %` := round((`Q3/2022` / `Q3/2013` - 1) * 100, 1)]
 # get top 10 starting and last period countries by export
 start <- tail(dt.export[, c(41, 4, 40)][order(`Q3/2013`)], 10)
@@ -92,7 +94,7 @@ Regarding imports, I observed that imports were reduced to only three countries:
 ```{r}
 # select exports data and exclude aggregated entires
 agg <- c("Total", "European Union (27 countries)", "Euro Area (18 countries)", "Commonwealth of Independent States", "Offshore financial centers", "Other countries")
-dt.import <- dt[Type == "Imports" & !Country %in% agg]
+dt.import <- copy(dt[Type == "Imports" & !Country %in% agg])
 dt.import[, `Change, %` := round((`Q3/2022` / `Q3/2013` - 1) * 100, 1)]
 
 # get top 10 starting and last period countries by export
@@ -111,8 +113,81 @@ Overall, this analysis highlights the importance of careful observation and anal
 
 ## Share
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+Let's start from visualizing total export and import changes over time.
+
+```{r}
+# select data for plotting
+dt.plot.1 <- melt(dt, id.vars = c("Country", "Type"), variable.name = "Quarter")
+
+# convert to datetime
+dt.plot.1[, Quarter := as.Date(as.yearqtr(Quarter, format = "Q%q/%Y"), frac = 1)]
+
+# colors for plotting
+pal <- c("#6699ff", "#ff6666")
+
+# create figure
+fig <- plot_ly(data = dt.plot.1[Type != "Balance" & Country == 'Total'],
+               type = 'scatter', mode = 'lines+markers',
+               x = ~Quarter, y = ~value, color = ~Type, colors = pal)
+# update layout
+fig <- fig %>% layout(title = "Total import and export volumes over time",
+                      xaxis = list(title = "Date"),
+                      yaxis = list (title = "Volumne, M EUR"))
+fig
+```
+
+There has been a significant increase in both total imports and exports, with a four-fold increase in imports and a three-fold increase in exports. However, during the first three quarters of 2020, there was a marked decline in both exports and imports, which can be attributed to the impact of Covid-19.
+
+```{r}
+# select data for plotting
+dt.plot.2 <- copy(dt.plot.1[Country %in% c("Total", "European Union (27 countries)", "Russia", "China")])
+
+# reshape table
+dt.plot.2 <- dcast(dt.plot.2, Quarter+Type~Country, value.var = "value")
+# calculate share to Total values
+dt.plot.2[, `EU (27 countries) share, %` := round(`European Union (27 countries)` / Total * 100, 2)]
+dt.plot.2[, `Russia share, %` := round(`Russia` / Total * 100, 2)]
+dt.plot.2[, `China share, %` := round(`China` / Total * 100, 2)]
+
+# colors
+eu.color <- 'rgb(22, 96, 167)'
+ru.color <- 'rgb(205, 12, 24)'
+ch.color <- 'rgb(0, 128, 0)'
+
+# create figure (imports)
+fig <- plot_ly(dt.plot.2[Type == 'Imports'],
+               x = ~Quarter, y = ~`EU (27 countries) share, %`,
+               name = 'EU (27 countries) imports', type = 'scatter', mode = 'lines',
+               line = list(color = eu.color, width = 4))
+fig <- fig %>% add_trace(y = ~`Russia share, %`,
+                         name = 'Russia imports',
+                         line = list(color = ru.color, width = 4))
+fig <- fig %>% add_trace(y = ~`China share, %`,
+                         name = 'China imports',
+                         line = list(color = ch.color, width = 4))
+# add exports
+fig <- fig %>% add_trace(x = dt.plot.2[Type == 'Exports']$Quarter,
+                         y = dt.plot.2[Type == 'Exports']$`EU (27 countries) share, %`,
+                         name = 'EU (27 countries) exports',
+                         line = list(color = eu.color, width = 4, dash = 'dash'))
+fig <- fig %>% add_trace(x = dt.plot.2[Type == 'Exports']$Quarter,
+                         y = dt.plot.2[Type == 'Exports']$`Russia share, %`,
+                         name = 'Russia exports',
+                         line = list(color = ru.color, width = 4, dash = 'dash'))
+fig <- fig %>% add_trace(x = dt.plot.2[Type == 'Exports']$Quarter,
+                         y = dt.plot.2[Type == 'Exports']$`China share, %`,
+                         name = 'China exports',
+                         line = list(color = ch.color, width = 4, dash = 'dash'))
+
+# update layout
+fig <- fig %>% layout(title = "Total import and export volumes over time",
+                      xaxis = list(title = "Date"),
+                      yaxis = list (title = "Share to total, %"))
+fig
+```
+
+The proportion of imports in the total volume of the European Union has increased by 50%, rising from around 50% to approximately 75%. Similarly, there have been noticeable changes in exports to EU countries. Meanwhile, exports and imports to Russia had been steadily declining even before the start of the 2022 war. It is noteworthy that despite the tensions with China arising from the Taiwan issue, there has been an increase in imports from China.
 
 ## Act
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+This analysis could be used to evaluate the true impact of economic sanctions to Russia and Covid-19 ipact to Lithuanias exports and imports. Following conclusions can be drawn:
