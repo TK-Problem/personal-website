@@ -187,7 +187,9 @@ fig <- fig %>% layout(title = "Total import and export volumes over time",
 fig
 ```
 
-The proportion of imports in the total volume of the European Union has increased by 50%, rising from around 50% to approximately 75%. Similarly, there have been noticeable changes in exports to EU countries. Meanwhile, exports and imports to Russia had been steadily declining even before the start of the 2022 war. Before the start of the war, for few years Lithuania was net importer with Russian trade. Even though there were tensions between China and Lithuania no notable changes could be observed to exports to China. In fact, the share to total imports from China increased almost 5 times
+The European Union has seen a significant increase in the proportion of imports in their total volume, which has increased by 50%. This means that the EU is becoming more reliant on imports and is potentially exporting less to other countries.
+
+When it comes to trade with Russia, both imports and exports have been declining steadily even before the start of the 2022 war. Prior to the war, Lithuania was a net importer with Russian trade. Surprisingly, tensions between China and Lithuania did not have a significant impact on their trade relationship, and the share of total imports from China increased almost 5 times.
 
 Finally let's analyze how import and exports were affected with Countries close to Russia.
 
@@ -204,57 +206,41 @@ dt.plot.3 <- dcast(dt.plot.3, Quarter+Type~Country, value.var = "value")
 # reshape back
 dt.plot.3 <- melt(dt.plot.3, id.vars = c("Quarter", "Type"), variable.name = "Country")
 
+# create new label
+dt.plot.3[, label := paste(Country, Type)]
+
 # color dictionary
-color.dict <- c("Kazakhstan"= "#C5AFA4", "Belarus" = "#CC7E85",
-                "Russia" = "#CF4D6F", "Turkey" = "#A36D90",
-                "Offshore financial centers" = "#76818E")
+color.dict <- c("#C5AFA4", "#CC7E85", "#CF4D6F", "#A36D90", "#76818E")
 
 # left figure
 fig1 <- plot_ly(data = dt.plot.3[Type == "Imports"],
-                x = ~Quarter, y = ~value, color=~Country, colors = color.dict,
+                x = ~Quarter, y = ~value, color=~label, colors = color.dict,
                 type = 'scatter', mode = 'lines+markers',
-                marker = list(line = list(width = 3))) %>%
-  layout(plot_bgcolor='#e5ecf6',
-         xaxis = list(
-           title = "Date",
-           zerolinecolor = '#ffff',
-           zerolinewidth = 2,
-           gridcolor = 'ffff'),
-         yaxis = list(
-           title = "Imports, M EUR",
-           zerolinecolor = '#ffff',
-           zerolinewidth = 2,
-           gridcolor = 'ffff'))
+                marker = list(line = list(width = 3)))
 
 # right figure
 fig2 <- plot_ly(data = dt.plot.3[Type == "Exports"],
-                x = ~Quarter, y = ~value, color=~Country,
+                x = ~Quarter, y = ~value, color=~label,
                 colors = color.dict,
                 type = 'scatter', mode = 'lines+markers',
                 line = list(dash = 'dot'),
-                marker = list(line = list(width = 3))) %>%
-  layout(plot_bgcolor='#e5ecf6',
-         xaxis = list(
-           title = "Date",
-           zerolinecolor = '#ffff',
-           zerolinewidth = 2,
-           gridcolor = 'ffff'),
-         yaxis = list(
-           title = "Exports, M EUR",
-           zerolinecolor = '#ffff',
-           zerolinewidth = 2,
-           gridcolor = 'ffff'))
+                marker = list(line = list(width = 3)))
 
 fig <- subplot(fig1, fig2, nrows = 2) %>% 
-  layout(title = 'Countries friendly to Russia')
+  layout(title = 'Countries close to Russia politics')
 fig
 ```
 
+Now, let's turn our attention to how trade with countries close to Russia has been affected. Since the Russian invasion of Ukraine, imports and exports with Turkey and Kazakhstan have increased 3-5 times. This increase may be attributed to companies trying to circumvent sanctions to Russia through exports to Kazakhstan. It's interesting to see how companies are adapting to changes in trade relationships and finding new opportunities to continue doing business.
 
 ## Act
 
-This analysis could be used to evaluate the impact of various historical events to Lithuania's exports and imports. Following conclusions can be drawn:
+In conclusion, my analysis offers insights that could be utilized in evaluating the impact of historical events on Lithuania's imports and exports. Based on the findings, several conclusions can be drawn:
 
-* Declines of imports and exports to Russia started way before of 2022 invasion.
-*
-*
+* Firstly, the declines in imports and exports with Russia preceded the 2022 invasion to Ukraine. This finding suggests that the declining trade relationship between the two countries started since 2014 Crimea annexation.
+
+* Secondly, the analysis revealed that political tensions over Taiwan did not have a substantial impact on exports to China.
+
+* Finally, the data indicates that imports and exports to Kazakhstan have increased, potentially due to sanctions against Russia. This finding underscores the importance of considering the geopolitical context when imposing economical sanctions.
+
+Overall, the present study highlights the complexities of trade relationships between Lithuania and other countries.
