@@ -23,7 +23,7 @@ The Russian invasion of Ukraine in 2022 has also had a significant impact on Lit
 
 ## Prepare
 
-The data was downloaded from the Lithuanian National [website](https://www.lb.lt/en/export-and-import-of-services-by-country) in an Excel file format. You can also find the same file in my blog's Github [repo](https://github.com/TK-Problem/personal-website/tree/main/posts/google-analytics-capstone). It was then loaded into R environment using the `tidyverse` library and processed converted to `data.table` format.
+The data was downloaded from the Lithuanian National [website](https://www.lb.lt/en/export-and-import-of-services-by-country) in an Excel file format. You can also find the same file in my blog's Github [repo](https://github.com/TK-Problem/personal-website/tree/main/posts/google-analytics-capstone). It was then loaded into the R environment using the `tidyverse` library and converted to `data.table` format.
 
 ```{r}
 #| warning: false
@@ -89,7 +89,7 @@ kbl(dt.changes, caption = "Top 5 largest positive and negative export changes") 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
-Regarding imports, I observed that imports were reduced to only three countries: Finland, Belarus, and Russia. It is worth noting, that that imports from Japan increased by 80%, which is in contrast to the reduced exports by 26%. Lastly, I observed that imports from Portugal increased by 35 times.
+Regarding imports, I observed that imports were reduced to only three countries: Finland, Belarus, and Russia. It is worth noting that imports from Japan increased by 80%, which is in contrast to the reduced exports by 26%. Lastly, I observed that imports from Portugal increased by 35 times.
 
 ```{r}
 # select exports data and exclude aggregated entires
@@ -191,7 +191,7 @@ The European Union has seen a significant increase in the proportion of imports 
 
 When it comes to trade with Russia, both imports and exports have been declining steadily even before the start of the 2022 war. Prior to the war, Lithuania was a net importer with Russian trade. Surprisingly, tensions between China and Lithuania did not have a significant impact on their trade relationship, and the share of total imports from China increased almost 5 times.
 
-Finally let's analyze how import and exports were affected with Countries close to Russia.
+Finally let's analyze how imports and exports were affected with Countries close to Russia.
 
 ```{r}
 # countries to select
@@ -227,7 +227,7 @@ fig2 <- plot_ly(data = dt.plot.3[Type == "Exports"],
                 marker = list(line = list(width = 3)))
 
 fig <- subplot(fig1, fig2, nrows = 2) %>% 
-  layout(title = 'Countries close to Russia politics')
+  layout(title = 'Exports and imports with countries close to Russia')
 fig
 ```
 
