@@ -1,0 +1,106 @@
+---
+title: "One-Sample Binomial Test (Part 1)"
+author: "Tomas Kristijonas Uždavinys"
+format:
+  html:
+    code-fold: true
+    code-tools: true
+date: "2023-03-19"
+draft: false
+categories: [R, Python, Statistics]
+---
+
+## Introduction
+
+The binomial test, also known to as the **one-sample proportion test** or **test of one proportion**, is a statistical method utilized to determine whether the proportion of cases in one of only two categories is equivalent to a pre-specified proportion. Categories could include the default rate of clients within the next 12 months, patients with high or low risk of heart disease, potential customers who are likely or not likely to make a purchase, or the rate of manufacturing defects. This widely used test finds applications in diverse fields, including credit risk, medicine, and manufacturing.
+
+As with all statistical tests, the binomial test has assumptions and conditions that must be met before applying it to real-life data. This blog post will examine two of these assumptions:
+
+* The "success-failure" condition requires observing a minimum of **n** successes and **n** failures in the sample;
+* observations are independent, i.e. the occurrence of one event does not affect the probability of occurrence of the other.
+
+The aim of this blog post is to showcase the ramifications of failing to meet these assumptions. Practical examples are coded in both `R` and `Python` languages.
+
+::: panel-tabset
+## R
+
+```{r}
+# load libraries for blog post
+library(ggplot2)
+```
+
+## Python
+
+```{python}
+# load packages for blog post
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import binom, norm
+```
+:::
+
+## Theory
+
+Suppose that we have a sample where outcomes are binary - e.g. only "success" and "failure". For the given sample, we would like to estimate the true proportion and also set up a statistical test to verify whether if the proportion is equal to some value, e.g. expected.
+
+First, we calculate a point estimate:
+
+$$p = \frac{n_s}{n}$$
+
+, where $n$ - sample size and $n_s$ - the number of successful observations (or it can be the number of failures).
+
+$$SE = \frac{p \cdot (1 - p)}{n}$$
+, where $SE$ is standard error. To perform a test, one first needs to derive a Null hypothesis:
+
+$$H_0: p = p_0$$
+
+and an alternative hypothesis:
+
+* one-sided $H_A: p < p_0$ or $H_A: p > p_0$,
+* two-sided $H_A: p \ne p_0$.
+
+Finally, we needs to calculate $Z$ statistics:
+
+$$Z = \frac{p_0-p}{SE}$$
+
+Obtaining the value of $Z$ enables us to either compute confidence intervals ($CI$) or reject $H_0$ in favor of $H_A$
+
+## “Success-failure” condition
+
+::: panel-tabset
+## R
+
+```{r}
+ggplot(mpg, aes(displ, hwy, colour = class)) + 
+  geom_point()
+```
+
+## Python
+
+```{python}
+fig, ax = plt.subplots(1, 1)
+n, p = 5, 0.4
+
+mean, var, skew, kurt = binom.stats(n, p, moments='mvsk')
+
+x = np.arange(binom.ppf(0.01, n, p), binom.ppf(0.99, n, p))
+
+ax.plot(x, binom.pmf(x, n, p), 'bo', ms=8, label='binom pmf')
+ax.vlines(x, 0, binom.pmf(x, n, p), colors='b', lw=5, alpha=0.5)
+rv = binom(n, p)
+ax.vlines(x, 0, rv.pmf(x), colors='k', linestyles='-', lw=1, label='frozen pmf')
+
+ax.legend(loc='best', frameon=False)
+```
+:::
+
+## Independent observations
+
+## References
+
+Content for this blog post was prepared using following references:
+
+-   https://statistics.laerd.com/spss-tutorials/binomial-test-using-spss-statistics.php
+-   http://mlwiki.org/index.php/Binomial_Proportion_Tests
+-   https://sites.ualberta.ca/\~lkgray/uploads/7/3/6/2/7362679/slides\_-\_binomialproportionaltests.pdf
+-   https://www.technologynetworks.com/informatics/articles/the-binomial-test-366022

@@ -4,7 +4,7 @@
     "href": "blog.html",
     "title": "Blog",
     "section": "",
-    "text": "Exports in Lithuania\n\n\n\n\n\n\n\nR\n\n\nMacro Economy\n\n\nCoursera\n\n\n\n\n\n\n\n\n\n\n\nMar 11, 2023\n\n\nTomas Kristijonas Uždavinys\n\n\n\n\n\n\nNo matching items"
+    "text": "One-Sample Binomial Test (Part 1)\n\n\n\n\n\n\n\nR\n\n\nPython\n\n\nStatistics\n\n\n\n\n\n\n\n\n\n\n\nMar 19, 2023\n\n\nTomas Kristijonas Uždavinys\n\n\n\n\n\n\n  \n\n\n\n\nExports in Lithuania\n\n\n\n\n\n\n\nR\n\n\nMacro Economy\n\n\nCoursera\n\n\n\n\n\n\n\n\n\n\n\nMar 11, 2023\n\n\nTomas Kristijonas Uždavinys\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "index.html",
@@ -40,6 +40,41 @@
     "title": "Portfolio",
     "section": "Papers",
     "text": "Papers\n\nS. Marcinkevičius, T. K. Uždavinys, H. M. Foronda, D. A. Cohen, C. Weisbuch, and J. S. Speck, “Intervalley energy of GaN conduction band measured by femtosecond pump-probe spectroscopy”, Phys. Rev. B 94, 235205 (2016)\nT. K. Uždavinys, S. Marcinkevičius, J. H. Leach, K. R. Evans, and D. C. Look, “Photoexcited carrier trapping and recombination at Fe centers in GaN”, J. Appl. Phys. 119, 215706 (2016)\nR. Butté, L. Lahourcade, T. K. Uždavinys, G. Callsen, M. Mensi, M. Glauser, G. Rossbach, D. Martin, J-F. Carlin, S. Marcinkevičius and N. Grandjean, “Optical absorption edge broadening in thick In- GaN layers: Random alloy atomic disorder and growth mode induced fluctuations”, Appl. Phys. Lett., 112, 032106 (2018).\nT. K. Uždavinys, S. Marcinkevičius, M. Mensi, L. Lahourcade, J-F. Carlin, D. Martin, R. Butté and N. Grandjean, “Impact of surface morphology on properties of light emission in InGaN epilayers”, Appl. Phys. Express 11, 051004 (2018).\nR. Ivanov, S. Marcinkevičius, T. K. Uždavinys, L. Y. Kuritzky, S. Nakamura, and J. S. Speck, “Scanning near-field microscopy of carrier lifetimes in m-plane InGaN quantum wells”, Appl. Phys. Lett. 110, 031109 (2017).\nT. K. Uždavinys, D. L. Becerra, R. Ivanov, S. P. DenBaars, S. Nakamura, J. S. Speck, and S. Marcinkevičius, “Influence of well width fluctuations on recombination properties in semipolar InGaN quantum wells studied by time- and spatially-resolved near-field photoluminecence”, Opt. Mat. Express, 7(9), 3116-3123 (2017)."
+  },
+  {
+    "objectID": "posts/binom-test-1/index.html",
+    "href": "posts/binom-test-1/index.html",
+    "title": "One-Sample Binomial Test (Part 1)",
+    "section": "",
+    "text": "The binomial test, also known to as the one-sample proportion test or test of one proportion, is a statistical method utilized to determine whether the proportion of cases in one of only two categories is equivalent to a pre-specified proportion. Categories could include the default rate of clients within the next 12 months, patients with high or low risk of heart disease, potential customers who are likely or not likely to make a purchase, or the rate of manufacturing defects. This widely used test finds applications in diverse fields, including credit risk, medicine, and manufacturing.\nAs with all statistical tests, the binomial test has assumptions and conditions that must be met before applying it to real-life data. This blog post will examine two of these assumptions:\n\nThe “success-failure” condition requires observing a minimum of n successes and n failures in the sample;\nobservations are independent, i.e. the occurrence of one event does not affect the probability of occurrence of the other.\n\nThe aim of this blog post is to showcase the ramifications of failing to meet these assumptions. Practical examples are coded in both R and Python languages.\n\nRPython\n\n\n\n\nCode\n# load libraries for blog post\nlibrary(ggplot2)\n\n\n\n\n\n\nCode\n# load packages for blog post\nimport numpy as np\nimport matplotlib.pyplot as plt\nfrom scipy.stats import binom, norm"
+  },
+  {
+    "objectID": "posts/binom-test-1/index.html#theory",
+    "href": "posts/binom-test-1/index.html#theory",
+    "title": "One-Sample Binomial Test (Part 1)",
+    "section": "Theory",
+    "text": "Theory\nSuppose that we have a sample where outcomes are binary - e.g. only “success” and “failure”. For the given sample, we would like to estimate the true proportion and also set up a statistical test to verify whether if the proportion is equal to some value, e.g. expected.\nFirst, we calculate a point estimate:\n\\[p = \\frac{n_s}{n}\\]\n, where \\(n\\) - sample size and \\(n_s\\) - the number of successful observations (or it can be the number of failures).\n\\[SE = \\frac{p \\cdot (1 - p)}{n}\\] , where \\(SE\\) is standard error. To perform a test, one first needs to derive a Null hypothesis:\n\\[H_0: p = p_0\\]\nand an alternative hypothesis:\n\none-sided \\(H_A: p < p_0\\) or \\(H_A: p > p_0\\),\ntwo-sided \\(H_A: p \\ne p_0\\).\n\nFinally, we needs to calculate \\(Z\\) statistics:\n\\[Z = \\frac{p_0-p}{SE}\\]\nObtaining the value of \\(Z\\) enables us to either compute confidence intervals (\\(CI\\)) or reject \\(H_0\\) in favor of \\(H_A\\)"
+  },
+  {
+    "objectID": "posts/binom-test-1/index.html#success-failure-condition",
+    "href": "posts/binom-test-1/index.html#success-failure-condition",
+    "title": "One-Sample Binomial Test (Part 1)",
+    "section": "“Success-failure” condition",
+    "text": "“Success-failure” condition\n\nRPython\n\n\n\n\nCode\nggplot(mpg, aes(displ, hwy, colour = class)) + \n  geom_point()\n\n\n\n\n\n\n\n\n\nCode\nfig, ax = plt.subplots(1, 1)\nn, p = 5, 0.4\n\nmean, var, skew, kurt = binom.stats(n, p, moments='mvsk')\n\nx = np.arange(binom.ppf(0.01, n, p), binom.ppf(0.99, n, p))\n\nax.plot(x, binom.pmf(x, n, p), 'bo', ms=8, label='binom pmf')\nax.vlines(x, 0, binom.pmf(x, n, p), colors='b', lw=5, alpha=0.5)\nrv = binom(n, p)\nax.vlines(x, 0, rv.pmf(x), colors='k', linestyles='-', lw=1, label='frozen pmf')\n\nax.legend(loc='best', frameon=False)"
+  },
+  {
+    "objectID": "posts/binom-test-1/index.html#independent-observations",
+    "href": "posts/binom-test-1/index.html#independent-observations",
+    "title": "One-Sample Binomial Test (Part 1)",
+    "section": "Independent observations",
+    "text": "Independent observations"
+  },
+  {
+    "objectID": "posts/binom-test-1/index.html#references",
+    "href": "posts/binom-test-1/index.html#references",
+    "title": "One-Sample Binomial Test (Part 1)",
+    "section": "References",
+    "text": "References\nContent for this blog post was prepared using following references:\n\nhttps://statistics.laerd.com/spss-tutorials/binomial-test-using-spss-statistics.php\nhttp://mlwiki.org/index.php/Binomial_Proportion_Tests\nhttps://sites.ualberta.ca/~lkgray/uploads/7/3/6/2/7362679/slides_-_binomialproportionaltests.pdf\nhttps://www.technologynetworks.com/informatics/articles/the-binomial-test-366022"
   },
   {
     "objectID": "posts/google-analytics-capstone/index.html",
