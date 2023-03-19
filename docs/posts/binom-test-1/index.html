@@ -113,6 +113,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-submit-button-title": "Submit"
   }
 }</script>
+<script src="../../site_libs/htmlwidgets-1.6.1/htmlwidgets.js"></script>
+<script src="../../site_libs/plotly-binding-4.10.1/plotly.js"></script>
+<script src="../../site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="../../site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="../../site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="../../site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="../../site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="../../site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
@@ -198,13 +206,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>The binomial test, also known to as the <strong>one-sample proportion test</strong> or <strong>test of one proportion</strong>, is a statistical method utilized to determine whether the proportion of cases in one of only two categories is equivalent to a pre-specified proportion. Categories could include the default rate of clients within the next 12 months, patients with high or low risk of heart disease, potential customers who are likely or not likely to make a purchase, or the rate of manufacturing defects. This widely used test finds applications in diverse fields, including credit risk, medicine, and manufacturing.</p>
-<p>As with all statistical tests, the binomial test has assumptions and conditions that must be met before applying it to real-life data. This blog post will examine two of these assumptions:</p>
+<p>The binomial test is a statistical test used to determine whether the proportion of cases in one of only two categories is equivalent to a pre-specified proportion. Categories could include the default rate of clients within the next 12 months, patients with high or low risk of heart disease, potential customers who are likely or not likely to make a purchase, or the rate of manufacturing defects. This widely used test finds applications in diverse fields, including credit risk, medicine, and manufacturing. It is also known to as the <strong>one-sample proportion test</strong> or <strong>test of one proportion</strong>.</p>
+<p>As with all statistical tests, the binomial test has assumptions and conditions that must be met before applying it to real-life data:</p>
 <ul>
 <li>The “success-failure” condition requires observing a minimum of <strong>n</strong> successes and <strong>n</strong> failures in the sample;</li>
 <li>observations are independent, i.e.&nbsp;the occurrence of one event does not affect the probability of occurrence of the other.</li>
 </ul>
-<p>The aim of this blog post is to showcase the ramifications of failing to meet these assumptions. Practical examples are coded in both <code>R</code> and <code>Python</code> languages.</p>
+<p>The aim of this blog post is to showcase the ramifications of failing to meet “success-failure” condition critereon. Practical examples are coded in both <code>R</code> and <code>Python</code> languages.</p>
 <div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python</a></li></ul>
 <div class="tab-content">
@@ -214,7 +222,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries for blog post</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </div>
@@ -226,9 +235,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> binom, norm</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># set style</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"ggplot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.graph_objects <span class="im">as</span> go</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> binom, norm</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># set style</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"ggplot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </div>
@@ -373,14 +384,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate over probabilities</span></span>
 <span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, _p <span class="kw">in</span> <span class="bu">enumerate</span>(p):</span>
 <span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select data for plotting</span></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  dt_plot <span class="op">=</span> df.loc[df[<span class="st">'p'</span>] <span class="op">==</span> _p]</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  dt_plot <span class="op">=</span> df.loc[df[<span class="st">'p'</span>] <span class="op">==</span> _p].copy()</span>
 <span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot binomial and normal distributions</span></span>
 <span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  ax[i].plot(dt_plot[<span class="st">'x'</span>], dt_plot[<span class="st">'Binomial'</span>], <span class="st">"o"</span>, label<span class="op">=</span><span class="st">'Binomial'</span>)<span class="op">;</span></span>
 <span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  ax[i].plot(dt_plot[<span class="st">'x'</span>], dt_plot[<span class="st">'Normal'</span>], <span class="st">"-"</span>, label<span class="op">=</span><span class="st">'Normal'</span>, linewidth<span class="op">=</span><span class="dv">3</span>)<span class="op">;</span></span>
 <span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add sub titles</span></span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  ax[i].set_title(<span class="ss">f"Prob. </span><span class="sc">{</span>_p<span class="op">*</span><span class="dv">100</span><span class="sc">:.0f}</span><span class="ss">% exp. successes </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>_p<span class="sc">:.0f}</span><span class="ss"> exp. failures </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>_p)<span class="sc">:.0f}</span><span class="ss">"</span>)<span class="op">;</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  ax[i].set_title(<span class="ss">f"Prob. </span><span class="sc">{</span>_p<span class="op">*</span><span class="dv">100</span><span class="sc">:.0f}</span><span class="ss">% expected </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>_p<span class="sc">:.0f}</span><span class="ss"> successes and </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>_p)<span class="sc">:.0f}</span><span class="ss"> failures"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span></span>
 <span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="co"># add labels</span></span>
 <span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Probability, %"</span>)<span class="op">;</span></span>
@@ -418,7 +429,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  ax[i].plot(dt_plot[<span class="st">'x'</span>], dt_plot[<span class="st">'Error'</span>], <span class="st">"o"</span>, color<span class="op">=</span><span class="st">'k'</span>)<span class="op">;</span></span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add sub titles</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  ax[i].set_title(<span class="ss">f"Prob. </span><span class="sc">{</span>_p<span class="op">*</span><span class="dv">100</span><span class="sc">:.0f}</span><span class="ss">% exp. successes </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>_p<span class="sc">:.0f}</span><span class="ss"> exp. failures </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>_p)<span class="sc">:.0f}</span><span class="ss">"</span>)<span class="op">;</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  ax[i].set_title(<span class="ss">f"Prob. </span><span class="sc">{</span>_p<span class="op">*</span><span class="dv">100</span><span class="sc">:.0f}</span><span class="ss">% expected </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>_p<span class="sc">:.0f}</span><span class="ss"> successes and </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>_p)<span class="sc">:.0f}</span><span class="ss"> failures"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span></span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co"># add labels</span></span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Probability, %"</span>)<span class="op">;</span></span>
@@ -434,7 +445,232 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </div>
-<p>The first thing to notice is that the “Success-Failure” criterion is only met for the p=30% case. In tabs <code>error</code> one can see that approximation error, i.e.&nbsp;Binomial prob. minus Normal, is more than 4% for 5% and 95% examples.</p>
+<p>The first thing to notice is that the “Success-Failure” criterion is only met for the p=30% case. In tabs <code>error</code> one can see that approximation error, i.e.&nbsp;the difference between Binomial probability and Normal distribution approximations, is above 2% for the <span class="math inline">\(p=5\%\)</span> and <span class="math inline">\(p=90\%\)</span> examples.</p>
+</section>
+<section id="estimating-approximation-error" class="level2">
+<h2 class="anchored" data-anchor-id="estimating-approximation-error">Estimating approximation error</h2>
+<p>There are a different way to calculate approximation error dependence on sample size. Let’s establish 3 types of probabilities:</p>
+<ul>
+<li><span class="math inline">\(p_1\)</span> we would observe more than expected number of occurrences,</li>
+<li><span class="math inline">\(p_2\)</span> we would observe expected number of occurrences,</li>
+<li><span class="math inline">\(p_3\)</span> we would observe less than expected number of occurrences.</li>
+</ul>
+<p>We have to be mindful, when comparing discrete binomial distribution with a continuous normal distribution. In examples bellow, we can compare areas under the curve for both distributions using interactive charts by <code>plotly</code> library/package. First I create a function to visualize both pint cand cumulative probabilities using interactive charts.</p>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">plot_ly function (R)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">plotly function (Python)</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>PlotDistributions <span class="ot">&lt;-</span> <span class="cf">function</span>(prob, size){</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create observation vector</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span>size</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># get probabilities for both binomial and norm distributions</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  y.binom <span class="ot">&lt;-</span> <span class="fu">dbinom</span>(x, <span class="at">size=</span>size, <span class="at">prob=</span>prob) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  y.norm <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(x, <span class="at">mean=</span>size <span class="sc">*</span> prob, <span class="at">sd =</span> <span class="fu">sqrt</span>(prob <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> prob) <span class="sc">*</span> size)) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create data table for plotting</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">x =</span> x,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                   <span class="at">prob.binom =</span> y.binom,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>                   <span class="at">prob.norm =</span> y.norm)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add columns with hover information</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  dt[, text<span class="fl">.1</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">'Point estimate probability&lt;br&gt;to observer exactly '</span>, x,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                        <span class="st">' events is '</span>, <span class="fu">round</span>(y.binom, <span class="dv">3</span>), <span class="st">"%"</span>)]</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  dt[, text<span class="fl">.2</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">'Point estimate probability&lt;br&gt;to observer exactly '</span>, x,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                        <span class="st">' events is '</span>, <span class="fu">round</span>(y.norm, <span class="dv">3</span>), <span class="st">"%"</span>)]</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  dt[, text<span class="fl">.3</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">'Point estimate error&lt;br&gt;to observer exactly '</span>, x,</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                        <span class="st">' events is '</span>, <span class="fu">round</span>(y.binom <span class="sc">-</span> y.norm, <span class="dv">3</span>), <span class="st">"%"</span>)]</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create figure</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> <span class="fu">plot_ly</span>(<span class="at">data =</span> dt, <span class="at">type =</span> <span class="st">'scatter'</span>, <span class="at">mode =</span> <span class="st">'lines'</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add traces</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">add_trace</span>(<span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span>prob.norm, <span class="at">text =</span> <span class="sc">~</span>text<span class="fl">.1</span>,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>                           <span class="at">name =</span> <span class="st">'Normal'</span>,<span class="at">mode =</span> <span class="st">'lines'</span>,</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hoverinfo =</span> <span class="st">'text'</span>,</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>                           <span class="at">line =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"#FF6666"</span>, <span class="at">width =</span> <span class="dv">5</span>))</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">add_trace</span>(<span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span>prob.binom, <span class="at">text =</span> <span class="sc">~</span>text<span class="fl">.2</span>,</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>                           <span class="at">name =</span> <span class="st">'Binomial'</span>,<span class="at">mode =</span> <span class="st">'markers'</span>,</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hoverinfo =</span> <span class="st">'text'</span>,</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>                           <span class="at">marker =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"#3399FF"</span>, <span class="at">size =</span> <span class="dv">12</span>))</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">add_trace</span>(<span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span>(prob.binom<span class="sc">-</span>prob.norm), <span class="at">text =</span> <span class="sc">~</span>text<span class="fl">.3</span>,</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>                           <span class="at">name =</span> <span class="st">'Error'</span>,<span class="at">mode =</span> <span class="st">'lines+markers'</span>,</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hoverinfo =</span> <span class="st">'text'</span>,</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>                           <span class="at">line =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">width =</span> <span class="dv">5</span>),</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>                           <span class="at">marker =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>                           <span class="at">visible =</span> <span class="st">"legendonly"</span>) </span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># update layout</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">layout</span>(<span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"p = "</span>, <span class="fu">round</span>(prob<span class="sc">*</span><span class="dv">100</span>), <span class="st">"%, "</span>, size, <span class="st">" trials"</span>),</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>                        <span class="at">xaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">"Observations"</span>),</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>                        <span class="at">yaxis =</span> <span class="fu">list</span> (<span class="at">title =</span> <span class="st">"Probability, %"</span>),</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>                        <span class="at">hovermode =</span> <span class="st">"x unified"</span>,</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>                        <span class="at">legend=</span><span class="fu">list</span>(<span class="at">title=</span><span class="fu">list</span>(<span class="at">text=</span><span class="st">'&lt;b&gt; Distributions &lt;/b&gt;'</span>)))</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># return figure</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(fig)</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create function for plotting distributions</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_distributions(prob, size):</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create observation vector</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  x <span class="op">=</span> np.arange(size<span class="op">+</span><span class="dv">1</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># get probabilities for both binomial and norm distributions</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  y_binom <span class="op">=</span> binom.pmf(x, n<span class="op">=</span>size, p<span class="op">=</span>prob) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  y_norm <span class="op">=</span> norm.pdf(x, loc <span class="op">=</span> size <span class="op">*</span> prob, scale <span class="op">=</span> prob <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> prob) <span class="op">*</span> size) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate Data.Frame</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> pd.DataFrame({<span class="st">'x'</span>: x, <span class="st">'binom'</span>: y_binom, <span class="st">'norm'</span>: y_norm})</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calculate error</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'error'</span>] <span class="op">=</span> df.binom <span class="op">-</span> df.norm</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate hover messages</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'text_1'</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="ss">f'Point estimate probability&lt;br&gt;to observer exactly </span><span class="sc">{</span>x[<span class="st">"x"</span>]<span class="sc">:.0f}</span><span class="ss"> events is </span><span class="sc">{</span>x[<span class="st">"binom"</span>]<span class="sc">:.3f}</span><span class="ss">%'</span>, axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'text_2'</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="ss">f'Point estimate probability&lt;br&gt;to observer exactly </span><span class="sc">{</span>x[<span class="st">"x"</span>]<span class="sc">:.0f}</span><span class="ss"> events is </span><span class="sc">{</span>x[<span class="st">"norm"</span>]<span class="sc">:.3f}</span><span class="ss">%'</span>, axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'text_3'</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="ss">f'Point estimate error&lt;br&gt;to observer exactly </span><span class="sc">{</span>x[<span class="st">"x"</span>]<span class="sc">:.0f}</span><span class="ss"> events is </span><span class="sc">{</span>x[<span class="st">"error"</span>]<span class="sc">:.3f}</span><span class="ss">%'</span>, axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create figure</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  fig <span class="op">=</span> go.Figure()</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  fig.add_trace(go.Scatter(x<span class="op">=</span>x, y<span class="op">=</span>y_norm, text <span class="op">=</span> df[<span class="st">'text_1'</span>].values,</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>                           mode<span class="op">=</span><span class="st">'lines'</span>, name<span class="op">=</span><span class="st">'Normal'</span>, hoverinfo <span class="op">=</span> <span class="st">'text'</span>,</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>                           line<span class="op">=</span><span class="bu">dict</span>(color<span class="op">=</span><span class="st">'#FF6666'</span>, width<span class="op">=</span><span class="dv">5</span>)))</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  fig.add_trace(go.Scatter(x<span class="op">=</span>x, y<span class="op">=</span>y_binom, text <span class="op">=</span> df[<span class="st">'text_2'</span>].values,</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>                           mode<span class="op">=</span><span class="st">'markers'</span>, name<span class="op">=</span><span class="st">'Binomial'</span>, hoverinfo <span class="op">=</span> <span class="st">'text'</span>,</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>                           marker<span class="op">=</span><span class="bu">dict</span>(color<span class="op">=</span><span class="st">'#3399FF'</span>, size<span class="op">=</span><span class="dv">12</span>)))</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                           </span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Edit the layout</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  fig.update_layout(title<span class="op">=</span><span class="ss">f"p = </span><span class="sc">{</span>prob<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%, </span><span class="sc">{</span>size<span class="sc">}</span><span class="ss"> trials"</span>,</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>                    xaxis_title<span class="op">=</span><span class="st">'Observations'</span>,</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>                    yaxis_title<span class="op">=</span><span class="st">'Probability, %'</span>,</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>                    template<span class="op">=</span><span class="st">"ggplot2"</span>,</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>                    hovermode<span class="op">=</span><span class="st">"x unified"</span>)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>                   </span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</div>
+</div>
+</div>
+<p>Next I provide examples using different probabilities.</p>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">30% (R)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">50% (R)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-3" role="tab" aria-controls="tabset-4-3" aria-selected="false">70% (Python)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-4" role="tab" aria-controls="tabset-4-4" aria-selected="false">5% (Python)</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># return figure</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotDistributions</span>(<span class="fl">0.3</span>, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-d648c8d03ba522e520e4" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-d648c8d03ba522e520e4">{"x":{"visdat":{"60cc5d0d394e":["function () ","plotlyVisDat"]},"cur_data":"60cc5d0d394e","attrs":{"60cc5d0d394e":{"mode":"lines","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"60cc5d0d394e.1":{"mode":"lines","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"text":{},"name":"Normal","hoverinfo":"text","line":{"color":"#FF6666","width":5},"inherit":true},"60cc5d0d394e.2":{"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"text":{},"name":"Binomial","hoverinfo":"text","marker":{"color":"#3399FF","size":12},"inherit":true},"60cc5d0d394e.3":{"mode":"lines+markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"text":{},"name":"Error","hoverinfo":"text","line":{"color":"black","width":5},"marker":{"color":"black","size":12},"visible":"legendonly","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"p = 30%, 10 trials","xaxis":{"domain":[0,1],"automargin":true,"title":"Observations"},"yaxis":{"domain":[0,1],"automargin":true,"title":"Probability, %"},"hovermode":"x unified","legend":{"title":{"text":"<b> Distributions <\/b>"}},"showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"mode":"lines","type":"scatter","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"mode":"lines","type":"scatter","x":[0,1,2,3,4,5,6,7,8,9,10],"y":[3.22975356145799,10.6215188984267,21.6968641811595,27.5296327870529,21.6968641811595,10.6215188984267,3.22975356145799,0.610021650937141,0.0715672313873835,0.00521526388317063,0.000236064924667909],"text":["Point estimate probability<br>to observer exactly 0 events is 2.825%","Point estimate probability<br>to observer exactly 1 events is 12.106%","Point estimate probability<br>to observer exactly 2 events is 23.347%","Point estimate probability<br>to observer exactly 3 events is 26.683%","Point estimate probability<br>to observer exactly 4 events is 20.012%","Point estimate probability<br>to observer exactly 5 events is 10.292%","Point estimate probability<br>to observer exactly 6 events is 3.676%","Point estimate probability<br>to observer exactly 7 events is 0.9%","Point estimate probability<br>to observer exactly 8 events is 0.145%","Point estimate probability<br>to observer exactly 9 events is 0.014%","Point estimate probability<br>to observer exactly 10 events is 0.001%"],"name":"Normal","hoverinfo":["text","text","text","text","text","text","text","text","text","text","text"],"line":{"color":"#FF6666","width":5},"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"mode":"markers","type":"scatter","x":[0,1,2,3,4,5,6,7,8,9,10],"y":[2.82475249,12.1060821,23.34744405,26.6827932,20.0120949,10.29193452,3.6756909,0.900169199999999,0.14467005,0.0137781,0.00059049],"text":["Point estimate probability<br>to observer exactly 0 events is 3.23%","Point estimate probability<br>to observer exactly 1 events is 10.622%","Point estimate probability<br>to observer exactly 2 events is 21.697%","Point estimate probability<br>to observer exactly 3 events is 27.53%","Point estimate probability<br>to observer exactly 4 events is 21.697%","Point estimate probability<br>to observer exactly 5 events is 10.622%","Point estimate probability<br>to observer exactly 6 events is 3.23%","Point estimate probability<br>to observer exactly 7 events is 0.61%","Point estimate probability<br>to observer exactly 8 events is 0.072%","Point estimate probability<br>to observer exactly 9 events is 0.005%","Point estimate probability<br>to observer exactly 10 events is 0%"],"name":"Binomial","hoverinfo":["text","text","text","text","text","text","text","text","text","text","text"],"marker":{"color":"#3399FF","size":12,"line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"line":{"color":"rgba(44,160,44,1)"},"xaxis":"x","yaxis":"y","frame":null},{"mode":"lines+markers","type":"scatter","x":[0,1,2,3,4,5,6,7,8,9,10],"y":[-0.405001071457993,1.48456320157334,1.65057986884047,-0.846839587052902,-1.68476928115953,-0.329584378426651,0.445937338542009,0.290147549062858,0.0731028186126166,0.00856283611682936,0.000354425075332091],"text":["Point estimate error<br>to observer exactly 0 events is -0.405%","Point estimate error<br>to observer exactly 1 events is 1.485%","Point estimate error<br>to observer exactly 2 events is 1.651%","Point estimate error<br>to observer exactly 3 events is -0.847%","Point estimate error<br>to observer exactly 4 events is -1.685%","Point estimate error<br>to observer exactly 5 events is -0.33%","Point estimate error<br>to observer exactly 6 events is 0.446%","Point estimate error<br>to observer exactly 7 events is 0.29%","Point estimate error<br>to observer exactly 8 events is 0.073%","Point estimate error<br>to observer exactly 9 events is 0.009%","Point estimate error<br>to observer exactly 10 events is 0%"],"name":"Error","hoverinfo":["text","text","text","text","text","text","text","text","text","text","text"],"line":{"color":"black","width":5},"marker":{"color":"black","size":12,"line":{"color":"rgba(214,39,40,1)"}},"visible":"legendonly","error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># return figure</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotDistributions</span>(<span class="fl">0.5</span>, <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-4e0eb7eef8a708a7aa79" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-4e0eb7eef8a708a7aa79">{"x":{"visdat":{"60cc1f6e5c9e":["function () ","plotlyVisDat"]},"cur_data":"60cc1f6e5c9e","attrs":{"60cc1f6e5c9e":{"mode":"lines","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"},"60cc1f6e5c9e.1":{"mode":"lines","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"text":{},"name":"Normal","hoverinfo":"text","line":{"color":"#FF6666","width":5},"inherit":true},"60cc1f6e5c9e.2":{"mode":"markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"text":{},"name":"Binomial","hoverinfo":"text","marker":{"color":"#3399FF","size":12},"inherit":true},"60cc1f6e5c9e.3":{"mode":"lines+markers","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter","x":{},"y":{},"text":{},"name":"Error","hoverinfo":"text","line":{"color":"black","width":5},"marker":{"color":"black","size":12},"visible":"legendonly","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"p = 50%, 10 trials","xaxis":{"domain":[0,1],"automargin":true,"title":"Observations"},"yaxis":{"domain":[0,1],"automargin":true,"title":"Probability, %"},"hovermode":"x unified","legend":{"title":{"text":"<b> Distributions <\/b>"}},"showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"mode":"lines","type":"scatter","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"mode":"lines","type":"scatter","x":[0,1,2,3,4,5,6,7,8,9,10],"y":[0.170007332050407,1.02848442527035,4.1707100072566,11.3371652244979,20.6576618986911,25.2313252202016,20.6576618986911,11.3371652244979,4.1707100072566,1.02848442527035,0.170007332050407],"text":["Point estimate probability<br>to observer exactly 0 events is 0.098%","Point estimate probability<br>to observer exactly 1 events is 0.977%","Point estimate probability<br>to observer exactly 2 events is 4.395%","Point estimate probability<br>to observer exactly 3 events is 11.719%","Point estimate probability<br>to observer exactly 4 events is 20.508%","Point estimate probability<br>to observer exactly 5 events is 24.609%","Point estimate probability<br>to observer exactly 6 events is 20.508%","Point estimate probability<br>to observer exactly 7 events is 11.719%","Point estimate probability<br>to observer exactly 8 events is 4.395%","Point estimate probability<br>to observer exactly 9 events is 0.977%","Point estimate probability<br>to observer exactly 10 events is 0.098%"],"name":"Normal","hoverinfo":["text","text","text","text","text","text","text","text","text","text","text"],"line":{"color":"#FF6666","width":5},"marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"mode":"markers","type":"scatter","x":[0,1,2,3,4,5,6,7,8,9,10],"y":[0.09765625,0.9765625,4.39453125,11.71875,20.5078125,24.609375,20.5078125,11.71875,4.39453125,0.9765625,0.09765625],"text":["Point estimate probability<br>to observer exactly 0 events is 0.17%","Point estimate probability<br>to observer exactly 1 events is 1.028%","Point estimate probability<br>to observer exactly 2 events is 4.171%","Point estimate probability<br>to observer exactly 3 events is 11.337%","Point estimate probability<br>to observer exactly 4 events is 20.658%","Point estimate probability<br>to observer exactly 5 events is 25.231%","Point estimate probability<br>to observer exactly 6 events is 20.658%","Point estimate probability<br>to observer exactly 7 events is 11.337%","Point estimate probability<br>to observer exactly 8 events is 4.171%","Point estimate probability<br>to observer exactly 9 events is 1.028%","Point estimate probability<br>to observer exactly 10 events is 0.17%"],"name":"Binomial","hoverinfo":["text","text","text","text","text","text","text","text","text","text","text"],"marker":{"color":"#3399FF","size":12,"line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"line":{"color":"rgba(44,160,44,1)"},"xaxis":"x","yaxis":"y","frame":null},{"mode":"lines+markers","type":"scatter","x":[0,1,2,3,4,5,6,7,8,9,10],"y":[-0.072351082050407,-0.0519219252703533,0.223821242743393,0.381584775502102,-0.149849398691135,-0.621950220201597,-0.149849398691135,0.381584775502102,0.223821242743393,-0.0519219252703533,-0.072351082050407],"text":["Point estimate error<br>to observer exactly 0 events is -0.072%","Point estimate error<br>to observer exactly 1 events is -0.052%","Point estimate error<br>to observer exactly 2 events is 0.224%","Point estimate error<br>to observer exactly 3 events is 0.382%","Point estimate error<br>to observer exactly 4 events is -0.15%","Point estimate error<br>to observer exactly 5 events is -0.622%","Point estimate error<br>to observer exactly 6 events is -0.15%","Point estimate error<br>to observer exactly 7 events is 0.382%","Point estimate error<br>to observer exactly 8 events is 0.224%","Point estimate error<br>to observer exactly 9 events is -0.052%","Point estimate error<br>to observer exactly 10 events is -0.072%"],"name":"Error","hoverinfo":["text","text","text","text","text","text","text","text","text","text","text"],"line":{"color":"black","width":5},"marker":{"color":"black","size":12,"line":{"color":"rgba(214,39,40,1)"}},"visible":"legendonly","error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</div>
+<div id="tabset-4-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-3-tab">
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># use python helper function from above</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plot_distributions(<span class="fl">0.7</span>, <span class="dv">10</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>                <div id="68b00f8e-e715-4442-888c-4f6bba1e2edb" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("68b00f8e-e715-4442-888c-4f6bba1e2edb")) {                    Plotly.newPlot(                        "68b00f8e-e715-4442-888c-4f6bba1e2edb",                        [{"hoverinfo":"text","line":{"color":"#FF6666","width":5},"mode":"lines","name":"Normal","text":["Point estimate probability<br>to observer exactly 0 events is 0.001%","Point estimate probability<br>to observer exactly 1 events is 0.014%","Point estimate probability<br>to observer exactly 2 events is 0.145%","Point estimate probability<br>to observer exactly 3 events is 0.900%","Point estimate probability<br>to observer exactly 4 events is 3.676%","Point estimate probability<br>to observer exactly 5 events is 10.292%","Point estimate probability<br>to observer exactly 6 events is 20.012%","Point estimate probability<br>to observer exactly 7 events is 26.683%","Point estimate probability<br>to observer exactly 8 events is 23.347%","Point estimate probability<br>to observer exactly 9 events is 12.106%","Point estimate probability<br>to observer exactly 10 events is 2.825%"],"x":[0,1,2,3,4,5,6,7,8,9,10],"y":[0.07344185696624324,0.32067140358239254,1.1160851807381067,3.0963851521458703,6.8475172737556305,12.070682381235597,16.96098358781643,18.997251447687272,16.96098358781643,12.070682381235597,6.8475172737556305],"type":"scatter"},{"hoverinfo":"text","marker":{"color":"#3399FF","size":12},"mode":"markers","name":"Binomial","text":["Point estimate probability<br>to observer exactly 0 events is 0.073%","Point estimate probability<br>to observer exactly 1 events is 0.321%","Point estimate probability<br>to observer exactly 2 events is 1.116%","Point estimate probability<br>to observer exactly 3 events is 3.096%","Point estimate probability<br>to observer exactly 4 events is 6.848%","Point estimate probability<br>to observer exactly 5 events is 12.071%","Point estimate probability<br>to observer exactly 6 events is 16.961%","Point estimate probability<br>to observer exactly 7 events is 18.997%","Point estimate probability<br>to observer exactly 8 events is 16.961%","Point estimate probability<br>to observer exactly 9 events is 12.071%","Point estimate probability<br>to observer exactly 10 events is 6.848%"],"x":[0,1,2,3,4,5,6,7,8,9,10],"y":[0.0005904900000000008,0.01377810000000001,0.14467005000000005,0.9001692000000003,3.6756909000000024,10.291934519999998,20.0120949,26.682793200000006,23.347444050000014,12.106082099999995,2.824752489999998],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"rgb(237,237,237)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"rgb(51,51,51)"},"error_y":{"color":"rgb(51,51,51)"},"marker":{"line":{"color":"rgb(237,237,237)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"rgb(51,51,51)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(51,51,51)"},"baxis":{"endlinecolor":"rgb(51,51,51)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(51,51,51)"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"rgb(237,237,237)"},"line":{"color":"white"}},"header":{"fill":{"color":"rgb(217,217,217)"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"colorscale":{"sequential":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"sequentialminus":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]]},"colorway":["#F8766D","#A3A500","#00BF7D","#00B0F6","#E76BF3"],"font":{"color":"rgb(51,51,51)"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"rgb(237,237,237)","showlakes":true,"showland":true,"subunitcolor":"white"},"hoverlabel":{"align":"left"},"hovermode":"closest","paper_bgcolor":"white","plot_bgcolor":"rgb(237,237,237)","polar":{"angularaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"},"bgcolor":"rgb(237,237,237)","radialaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"}},"scene":{"xaxis":{"backgroundcolor":"rgb(237,237,237)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","zerolinecolor":"white"},"yaxis":{"backgroundcolor":"rgb(237,237,237)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","zerolinecolor":"white"},"zaxis":{"backgroundcolor":"rgb(237,237,237)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","zerolinecolor":"white"}},"shapedefaults":{"fillcolor":"black","line":{"width":0},"opacity":0.3},"ternary":{"aaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"},"baxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"},"bgcolor":"rgb(237,237,237)","caxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"}},"xaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","title":{"standoff":15},"zerolinecolor":"white"},"yaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","title":{"standoff":15},"zerolinecolor":"white"}}},"title":{"text":"p = 70.0%, 10 trials"},"xaxis":{"title":{"text":"Observations"}},"yaxis":{"title":{"text":"Probability, %"}},"hovermode":"x unified"},                        {"responsive": true}                    )                };                            </script>        </div>
+</div>
+</div>
+</div>
+<div id="tabset-4-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-4-tab">
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># use python helper function from above</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plot_distributions(<span class="fl">0.3</span>, <span class="dv">20</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>                <div id="f522c681-8662-4696-a3cc-901130363597" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script type="text/javascript">                                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("f522c681-8662-4696-a3cc-901130363597")) {                    Plotly.newPlot(                        "f522c681-8662-4696-a3cc-901130363597",                        [{"hoverinfo":"text","line":{"color":"#FF6666","width":5},"mode":"lines","name":"Normal","text":["Point estimate probability<br>to observer exactly 0 events is 0.080%","Point estimate probability<br>to observer exactly 1 events is 0.684%","Point estimate probability<br>to observer exactly 2 events is 2.785%","Point estimate probability<br>to observer exactly 3 events is 7.160%","Point estimate probability<br>to observer exactly 4 events is 13.042%","Point estimate probability<br>to observer exactly 5 events is 17.886%","Point estimate probability<br>to observer exactly 6 events is 19.164%","Point estimate probability<br>to observer exactly 7 events is 16.426%","Point estimate probability<br>to observer exactly 8 events is 11.440%","Point estimate probability<br>to observer exactly 9 events is 6.537%","Point estimate probability<br>to observer exactly 10 events is 3.082%","Point estimate probability<br>to observer exactly 11 events is 1.201%","Point estimate probability<br>to observer exactly 12 events is 0.386%","Point estimate probability<br>to observer exactly 13 events is 0.102%","Point estimate probability<br>to observer exactly 14 events is 0.022%","Point estimate probability<br>to observer exactly 15 events is 0.004%","Point estimate probability<br>to observer exactly 16 events is 0.001%","Point estimate probability<br>to observer exactly 17 events is 0.000%","Point estimate probability<br>to observer exactly 18 events is 0.000%","Point estimate probability<br>to observer exactly 19 events is 0.000%","Point estimate probability<br>to observer exactly 20 events is 0.000%"],"x":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[3.4237586368778152,4.676408250571464,6.035341190617799,7.359890733787296,8.480491793908215,9.233170198090706,9.498625723843636,9.233170198090706,8.480491793908215,7.359890733787296,6.035341190617799,4.676408250571464,3.4237586368778152,2.368503304589255,1.5481925760729351,0.9562162009738837,0.5580425903690533,0.30772212711138874,0.16033570179119627,0.0789372295020917,0.03672092848312162],"type":"scatter"},{"hoverinfo":"text","marker":{"color":"#3399FF","size":12},"mode":"markers","name":"Binomial","text":["Point estimate probability<br>to observer exactly 0 events is 3.424%","Point estimate probability<br>to observer exactly 1 events is 4.676%","Point estimate probability<br>to observer exactly 2 events is 6.035%","Point estimate probability<br>to observer exactly 3 events is 7.360%","Point estimate probability<br>to observer exactly 4 events is 8.480%","Point estimate probability<br>to observer exactly 5 events is 9.233%","Point estimate probability<br>to observer exactly 6 events is 9.499%","Point estimate probability<br>to observer exactly 7 events is 9.233%","Point estimate probability<br>to observer exactly 8 events is 8.480%","Point estimate probability<br>to observer exactly 9 events is 7.360%","Point estimate probability<br>to observer exactly 10 events is 6.035%","Point estimate probability<br>to observer exactly 11 events is 4.676%","Point estimate probability<br>to observer exactly 12 events is 3.424%","Point estimate probability<br>to observer exactly 13 events is 2.369%","Point estimate probability<br>to observer exactly 14 events is 1.548%","Point estimate probability<br>to observer exactly 15 events is 0.956%","Point estimate probability<br>to observer exactly 16 events is 0.558%","Point estimate probability<br>to observer exactly 17 events is 0.308%","Point estimate probability<br>to observer exactly 18 events is 0.160%","Point estimate probability<br>to observer exactly 19 events is 0.079%","Point estimate probability<br>to observer exactly 20 events is 0.037%"],"x":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"y":[0.0797922662976119,0.6839337111223898,2.784587252426864,7.1603672205262106,13.04209743738704,17.886305056987965,19.16389827534426,16.426198521723663,11.439673970486108,6.536956554563498,3.081708090008503,1.2006654896137012,0.3859281930901185,0.10178325971607535,0.02181069851058755,0.0037389768875293015,0.0005007558331512454,5.0496386536260084e-05,3.606884752589999e-06,1.627166053800003e-07,3.4867844009999977e-09],"type":"scatter"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"rgb(237,237,237)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"rgb(51,51,51)"},"error_y":{"color":"rgb(51,51,51)"},"marker":{"line":{"color":"rgb(237,237,237)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"rgb(51,51,51)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(51,51,51)"},"baxis":{"endlinecolor":"rgb(51,51,51)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(51,51,51)"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"},"colorscale":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"rgb(237,237,237)"},"line":{"color":"white"}},"header":{"fill":{"color":"rgb(217,217,217)"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(237,237,237)","ticklen":6,"ticks":"inside"}},"colorscale":{"sequential":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]],"sequentialminus":[[0,"rgb(20,44,66)"],[1,"rgb(90,179,244)"]]},"colorway":["#F8766D","#A3A500","#00BF7D","#00B0F6","#E76BF3"],"font":{"color":"rgb(51,51,51)"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"rgb(237,237,237)","showlakes":true,"showland":true,"subunitcolor":"white"},"hoverlabel":{"align":"left"},"hovermode":"closest","paper_bgcolor":"white","plot_bgcolor":"rgb(237,237,237)","polar":{"angularaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"},"bgcolor":"rgb(237,237,237)","radialaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"}},"scene":{"xaxis":{"backgroundcolor":"rgb(237,237,237)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","zerolinecolor":"white"},"yaxis":{"backgroundcolor":"rgb(237,237,237)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","zerolinecolor":"white"},"zaxis":{"backgroundcolor":"rgb(237,237,237)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","zerolinecolor":"white"}},"shapedefaults":{"fillcolor":"black","line":{"width":0},"opacity":0.3},"ternary":{"aaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"},"baxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"},"bgcolor":"rgb(237,237,237)","caxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside"}},"xaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","title":{"standoff":15},"zerolinecolor":"white"},"yaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","showgrid":true,"tickcolor":"rgb(51,51,51)","ticks":"outside","title":{"standoff":15},"zerolinecolor":"white"}}},"title":{"text":"p = 30.0%, 20 trials"},"xaxis":{"title":{"text":"Observations"}},"yaxis":{"title":{"text":"Probability, %"}},"hovermode":"x unified"},                        {"responsive": true}                    )                };                            </script>        </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Let’s taken hypothetical model of 1%, i.e.&nbsp;we expect to have 1% manufacturing defects or 1% of clients in our portfolio will fail to meet their credit obligations. For this hypothetical model to meet “Success-Failure” condition we would need to collect at least 1000 observations, i.e.&nbsp;to manufacture 1000 devices or issue credit to 1000 obligatory. Let’s compare 3 probabilities calculated using binomial and normal distribution approximation:</p>
+<p>In all 3 cases, we need to calculated expected number of occurrences <span class="math inline">\(n \cdot p\)</span>. Let’s investigate sample sizes raging from 100 to 2000.</p>
+<p>From the given example, we can ratios between probabilities for all 3 cases.</p>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create vector with different sample sizes</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sampleSizes <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">100</span>, <span class="dv">2000</span>, <span class="dv">100</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create data.table for p = 0.01, i.e. 1%</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">N =</span> sampleSizes, <span class="at">p =</span> <span class="fl">0.02</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate expected number of observations and standard deviation</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>dt[, mu <span class="sc">:</span><span class="er">=</span> N <span class="sc">*</span> p]</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>dt[, std <span class="sc">:</span><span class="er">=</span> <span class="fu">sqrt</span>(p <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p) <span class="sc">*</span> N)]</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate probabilities of observing:</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. less than the expected number of observations</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. exactly the expected number of observations</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. more than the expected number of observations</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>dt[, binom<span class="fl">.1</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">pbinom</span>(mu<span class="dv">-1</span>, <span class="at">size=</span>N, <span class="at">prob=</span>p)]</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>dt[, binom<span class="fl">.2</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">dbinom</span>(mu, <span class="at">size=</span>N, <span class="at">prob=</span>p)]</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>dt[, binom<span class="fl">.3</span> <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pbinom</span>(mu, <span class="at">size=</span>N, <span class="at">prob=</span>p)]</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co"># same but for normal distribution</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>dt[, norm<span class="fl">.1</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">pnorm</span>(mu<span class="dv">-1</span>, <span class="at">mean =</span> mu, <span class="at">sd =</span> std)]</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>dt[, norm<span class="fl">.2</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">pnorm</span>(mu<span class="sc">+</span><span class="dv">1</span>, <span class="at">mean =</span> mu, <span class="at">sd =</span> std) <span class="sc">-</span> <span class="fu">pnorm</span>(mu<span class="dv">-1</span>, <span class="at">mean =</span> mu, <span class="at">sd =</span> std)]</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>dt[, norm<span class="fl">.3</span> <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(mu<span class="sc">+</span><span class="dv">1</span>, <span class="at">mean =</span> mu, <span class="at">sd =</span> std)]</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate errors</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>dt[, error.left <span class="sc">:</span><span class="er">=</span> binom<span class="fl">.1</span><span class="sc">/</span>norm<span class="fl">.1</span>]</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>dt[, error.right <span class="sc">:</span><span class="er">=</span> binom<span class="fl">.3</span><span class="sc">/</span>norm<span class="fl">.3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages for blog post</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</div>
+</div>
+</div>
 </section>
 <section id="independent-observations" class="level2">
 <h2 class="anchored" data-anchor-id="independent-observations">Independent observations</h2>
@@ -645,260 +881,452 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb7" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "One-Sample Binomial Test (Part 1)"</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Tomas Kristijonas Uždavinys"</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2023-03-19"</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="an">draft:</span><span class="co"> false</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [R, Python, Statistics]</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>The binomial test, also known to as the **one-sample proportion test** or **test of one proportion**, is a statistical method utilized to determine whether the proportion of cases in one of only two categories is equivalent to a pre-specified proportion. Categories could include the default rate of clients within the next 12 months, patients with high or low risk of heart disease, potential customers who are likely or not likely to make a purchase, or the rate of manufacturing defects. This widely used test finds applications in diverse fields, including credit risk, medicine, and manufacturing.</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>As with all statistical tests, the binomial test has assumptions and conditions that must be met before applying it to real-life data. This blog post will examine two of these assumptions:</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>The "success-failure" condition requires observing a minimum of **n** successes and **n** failures in the sample;</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>observations are independent, i.e. the occurrence of one event does not affect the probability of occurrence of the other.</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>The aim of this blog post is to showcase the ramifications of failing to meet these assumptions. Practical examples are coded in both <span class="in">`R`</span> and <span class="in">`Python`</span> languages.</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>::: panel-tabset</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="fu">## R</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries for blog post</span></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="fu">## Python</span></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages for blog post</span></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> binom, norm</span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="co"># set style</span></span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"ggplot"</span>)</span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="fu">## Theory</span></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>Suppose that we have a sample where outcomes are binary - e.g. only "success" and "failure". For the given sample, we would like to estimate the true proportion and also set up a statistical test to verify whether if the proportion is equal to some value, e.g. expected.</span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>First, we calculate a point estimate:</span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>$$p = \frac{n_s}{n}$$</span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>, where $n$ - sample size and $n_s$ - the number of successful observations (or it can be the number of failures).</span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>$$SE = \sqrt{\frac{p \cdot (1 - p)}{n}}$$</span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>, where $SE$ is standard error. To perform a test, one first needs to derive a Null hypothesis:</span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>$$H_0: p = p_0$$</span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>and an alternative hypothesis:</span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>one-sided $H_A: p &lt; p_0$ or $H_A: p &gt; p_0$,</span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>two-sided $H_A: p \ne p_0$.</span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>Finally, we needs to calculate $Z$ statistics:</span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>$$Z = \frac{p_0-p}{SE}$$</span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>Obtaining the value of $Z$ enables us to either compute confidence intervals ($CI$) or reject $H_0$ in favor of $H_A$</span>
-<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a><span class="fu">## “Success-failure” condition</span></span>
-<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>In order to approximate any distribution as normal, the mean ($\mu$) and standard deviation ($\sigma$) must be known/calculated. For the Binomial distribution comprising $n$ experiments and a probability of $p$ normal distribution mean will be located at:</span>
-<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>To approximate any distribution as normal, it is imperative to calculate the mean ($\mu$) and standard deviation ($\sigma$). For the Binomial distribution, which consists of a number of experiments $n$ and a probability $p$, the mean of the normal distribution is:</span>
-<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a>$$\mu = n \cdot p$$</span>
-<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>and the standard deviation:</span>
-<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a>$$\sigma = \sqrt{n \cdot p \cdot (1 - p)}.$$</span>
-<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a>Meeting the "Success-Failure" condition is crucial to approximate Binomial distribution as Normal. Below, I present an instance of 50 Binomial events with varying probability rates of 5%, 30%, and 90%.</span>
-<span id="cb7-89"><a href="#cb7-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-90"><a href="#cb7-90" aria-hidden="true" tabindex="-1"></a>::: panel-tabset</span>
-<span id="cb7-91"><a href="#cb7-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## binomial vs. normal (R)</span></span>
-<span id="cb7-92"><a href="#cb7-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-95"><a href="#cb7-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-96"><a href="#cb7-96" aria-hidden="true" tabindex="-1"></a><span class="co"># probabilities</span></span>
-<span id="cb7-97"><a href="#cb7-97" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.3</span>, <span class="fl">0.9</span>)</span>
-<span id="cb7-98"><a href="#cb7-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-99"><a href="#cb7-99" aria-hidden="true" tabindex="-1"></a><span class="co"># successes</span></span>
-<span id="cb7-100"><a href="#cb7-100" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">50</span></span>
-<span id="cb7-101"><a href="#cb7-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-102"><a href="#cb7-102" aria-hidden="true" tabindex="-1"></a><span class="co"># create data.table</span></span>
-<span id="cb7-103"><a href="#cb7-103" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">CJ</span>(p, x)</span>
-<span id="cb7-104"><a href="#cb7-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-105"><a href="#cb7-105" aria-hidden="true" tabindex="-1"></a><span class="co"># add size column</span></span>
-<span id="cb7-106"><a href="#cb7-106" aria-hidden="true" tabindex="-1"></a>dt[, size <span class="sc">:</span><span class="er">=</span> <span class="dv">50</span>]</span>
-<span id="cb7-107"><a href="#cb7-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-108"><a href="#cb7-108" aria-hidden="true" tabindex="-1"></a><span class="co"># add binomial probability</span></span>
-<span id="cb7-109"><a href="#cb7-109" aria-hidden="true" tabindex="-1"></a>dt[, Binomial <span class="sc">:</span><span class="er">=</span> <span class="fu">dbinom</span>(x, <span class="at">size=</span>size, <span class="at">prob=</span>p) <span class="sc">*</span> <span class="dv">100</span>]</span>
-<span id="cb7-110"><a href="#cb7-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-111"><a href="#cb7-111" aria-hidden="true" tabindex="-1"></a><span class="co"># create label column</span></span>
-<span id="cb7-112"><a href="#cb7-112" aria-hidden="true" tabindex="-1"></a>dt[, label <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">"Prob: "</span>, <span class="fu">round</span>(p<span class="sc">*</span><span class="dv">100</span>),</span>
-<span id="cb7-113"><a href="#cb7-113" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"%, exp. successes "</span>, <span class="fu">round</span>(p<span class="sc">*</span>size),</span>
-<span id="cb7-114"><a href="#cb7-114" aria-hidden="true" tabindex="-1"></a>                     <span class="st">" exp. failures "</span>, <span class="fu">round</span>((<span class="dv">1</span><span class="sc">-</span>p)<span class="sc">*</span>size))]</span>
-<span id="cb7-115"><a href="#cb7-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-116"><a href="#cb7-116" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate mean and standard deviation</span></span>
-<span id="cb7-117"><a href="#cb7-117" aria-hidden="true" tabindex="-1"></a>dt[, mu <span class="sc">:</span><span class="er">=</span> size <span class="sc">*</span> p]</span>
-<span id="cb7-118"><a href="#cb7-118" aria-hidden="true" tabindex="-1"></a>dt[, st.dev <span class="sc">:</span><span class="er">=</span> <span class="fu">sqrt</span>(p <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p) <span class="sc">*</span> size)]</span>
-<span id="cb7-119"><a href="#cb7-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-120"><a href="#cb7-120" aria-hidden="true" tabindex="-1"></a><span class="co"># get norm distribution</span></span>
-<span id="cb7-121"><a href="#cb7-121" aria-hidden="true" tabindex="-1"></a>dt[, Normal <span class="sc">:</span><span class="er">=</span> <span class="fu">dnorm</span>(x, <span class="at">mean=</span>mu, <span class="at">sd =</span> st.dev) <span class="sc">*</span> <span class="dv">100</span>]</span>
-<span id="cb7-122"><a href="#cb7-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-123"><a href="#cb7-123" aria-hidden="true" tabindex="-1"></a><span class="co"># convert to ordered factor</span></span>
-<span id="cb7-124"><a href="#cb7-124" aria-hidden="true" tabindex="-1"></a>dt[, label <span class="sc">:</span><span class="er">=</span> <span class="fu">factor</span>(label, <span class="at">levels=</span><span class="fu">c</span>(<span class="st">"Prob: 5%, exp. successes 2 exp. failures 48"</span>,</span>
-<span id="cb7-125"><a href="#cb7-125" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">"Prob: 30%, exp. successes 15 exp. failures 35"</span>,</span>
-<span id="cb7-126"><a href="#cb7-126" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">"Prob: 90%, exp. successes 45 exp. failures 5"</span> ))]</span>
-<span id="cb7-127"><a href="#cb7-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-128"><a href="#cb7-128" aria-hidden="true" tabindex="-1"></a><span class="co"># reshape for plotting</span></span>
-<span id="cb7-129"><a href="#cb7-129" aria-hidden="true" tabindex="-1"></a>dt.plot <span class="ot">&lt;-</span> <span class="fu">melt</span>(dt, <span class="at">id.vars =</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"label"</span>),</span>
-<span id="cb7-130"><a href="#cb7-130" aria-hidden="true" tabindex="-1"></a>                <span class="at">measure.vars =</span> <span class="fu">c</span>(<span class="st">"Binomial"</span>, <span class="st">"Normal"</span>),</span>
-<span id="cb7-131"><a href="#cb7-131" aria-hidden="true" tabindex="-1"></a>                <span class="at">variable.name =</span> <span class="fu">c</span>(<span class="st">"Type"</span>),</span>
-<span id="cb7-132"><a href="#cb7-132" aria-hidden="true" tabindex="-1"></a>                <span class="at">value.name =</span> <span class="fu">c</span>(<span class="st">'prob'</span>))</span>
-<span id="cb7-133"><a href="#cb7-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-134"><a href="#cb7-134" aria-hidden="true" tabindex="-1"></a><span class="co"># create figure</span></span>
-<span id="cb7-135"><a href="#cb7-135" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dt.plot, <span class="fu">aes</span>(x, prob, <span class="at">color=</span>Type)) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>label, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Probability, %"</span>)</span>
-<span id="cb7-136"><a href="#cb7-136" aria-hidden="true" tabindex="-1"></a>fig</span>
-<span id="cb7-137"><a href="#cb7-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-138"><a href="#cb7-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-139"><a href="#cb7-139" aria-hidden="true" tabindex="-1"></a><span class="fu">## error (R)</span></span>
-<span id="cb7-140"><a href="#cb7-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-143"><a href="#cb7-143" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb7-144"><a href="#cb7-144" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate error (use data.table from previous code chunk)</span></span>
-<span id="cb7-145"><a href="#cb7-145" aria-hidden="true" tabindex="-1"></a>dt[, Error <span class="sc">:</span><span class="er">=</span> Binomial <span class="sc">-</span> Normal]</span>
-<span id="cb7-146"><a href="#cb7-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-147"><a href="#cb7-147" aria-hidden="true" tabindex="-1"></a><span class="co"># create figure</span></span>
-<span id="cb7-148"><a href="#cb7-148" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dt, <span class="fu">aes</span>(x, Error)) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>label, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Error (binom. - norm.), %"</span>)</span>
-<span id="cb7-149"><a href="#cb7-149" aria-hidden="true" tabindex="-1"></a>fig</span>
-<span id="cb7-150"><a href="#cb7-150" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-151"><a href="#cb7-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-152"><a href="#cb7-152" aria-hidden="true" tabindex="-1"></a><span class="fu">## binomial vs. normal (Python)</span></span>
-<span id="cb7-153"><a href="#cb7-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-156"><a href="#cb7-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb7-157"><a href="#cb7-157" aria-hidden="true" tabindex="-1"></a><span class="co"># probabilities</span></span>
-<span id="cb7-158"><a href="#cb7-158" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> [<span class="fl">0.05</span>, <span class="fl">0.3</span>, <span class="fl">0.9</span>]</span>
-<span id="cb7-159"><a href="#cb7-159" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-160"><a href="#cb7-160" aria-hidden="true" tabindex="-1"></a><span class="co"># successes</span></span>
-<span id="cb7-161"><a href="#cb7-161" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.arange(<span class="dv">51</span>)</span>
-<span id="cb7-162"><a href="#cb7-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-163"><a href="#cb7-163" aria-hidden="true" tabindex="-1"></a><span class="co"># create DataFrame with all combinations</span></span>
-<span id="cb7-164"><a href="#cb7-164" aria-hidden="true" tabindex="-1"></a>df_1 <span class="op">=</span> pd.DataFrame({<span class="st">'p'</span>: p})</span>
-<span id="cb7-165"><a href="#cb7-165" aria-hidden="true" tabindex="-1"></a>df_2 <span class="op">=</span> pd.DataFrame({<span class="st">'x'</span>: x})</span>
-<span id="cb7-166"><a href="#cb7-166" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-167"><a href="#cb7-167" aria-hidden="true" tabindex="-1"></a><span class="co"># create key for joining</span></span>
-<span id="cb7-168"><a href="#cb7-168" aria-hidden="true" tabindex="-1"></a>df_1[<span class="st">'key'</span>] <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb7-169"><a href="#cb7-169" aria-hidden="true" tabindex="-1"></a>df_2[<span class="st">'key'</span>] <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb7-170"><a href="#cb7-170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-171"><a href="#cb7-171" aria-hidden="true" tabindex="-1"></a><span class="co"># perform cross join</span></span>
-<span id="cb7-172"><a href="#cb7-172" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df_1.merge(df_2, on<span class="op">=</span><span class="st">'key'</span>, how<span class="op">=</span><span class="st">'outer'</span>)</span>
-<span id="cb7-173"><a href="#cb7-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-174"><a href="#cb7-174" aria-hidden="true" tabindex="-1"></a><span class="co"># drop key column</span></span>
-<span id="cb7-175"><a href="#cb7-175" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> df[<span class="st">'key'</span>]</span>
-<span id="cb7-176"><a href="#cb7-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-177"><a href="#cb7-177" aria-hidden="true" tabindex="-1"></a><span class="co"># add size value</span></span>
-<span id="cb7-178"><a href="#cb7-178" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'size'</span>] <span class="op">=</span> <span class="dv">50</span></span>
-<span id="cb7-179"><a href="#cb7-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-180"><a href="#cb7-180" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate binomial probability</span></span>
-<span id="cb7-181"><a href="#cb7-181" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Binomial'</span>] <span class="op">=</span> binom.pmf(df[<span class="st">'x'</span>], df[<span class="st">'size'</span>], df[<span class="st">'p'</span>]) <span class="op">*</span> <span class="dv">100</span></span>
-<span id="cb7-182"><a href="#cb7-182" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb7-183"><a href="#cb7-183" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate mean and standard deviation</span></span>
-<span id="cb7-184"><a href="#cb7-184" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'mu'</span>] <span class="op">=</span> df[<span class="st">'size'</span>] <span class="op">*</span> df[<span class="st">'p'</span>]</span>
-<span id="cb7-185"><a href="#cb7-185" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'std'</span>] <span class="op">=</span> np.sqrt(df[<span class="st">'p'</span>] <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> df[<span class="st">'p'</span>]) <span class="op">*</span> df[<span class="st">'size'</span>])</span>
-<span id="cb7-186"><a href="#cb7-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-187"><a href="#cb7-187" aria-hidden="true" tabindex="-1"></a><span class="co"># get norm distribution</span></span>
-<span id="cb7-188"><a href="#cb7-188" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Normal'</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> x: norm.pdf(x[<span class="st">'x'</span>], x[<span class="st">'mu'</span>], x[<span class="st">'std'</span>]) <span class="op">*</span> <span class="dv">100</span>, axis <span class="op">=</span> <span class="dv">1</span>)</span>
-<span id="cb7-189"><a href="#cb7-189" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-190"><a href="#cb7-190" aria-hidden="true" tabindex="-1"></a><span class="co"># create figure</span></span>
-<span id="cb7-191"><a href="#cb7-191" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb7-192"><a href="#cb7-192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-193"><a href="#cb7-193" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate over probabilities</span></span>
-<span id="cb7-194"><a href="#cb7-194" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, _p <span class="kw">in</span> <span class="bu">enumerate</span>(p):</span>
-<span id="cb7-195"><a href="#cb7-195" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select data for plotting</span></span>
-<span id="cb7-196"><a href="#cb7-196" aria-hidden="true" tabindex="-1"></a>  dt_plot <span class="op">=</span> df.loc[df[<span class="st">'p'</span>] <span class="op">==</span> _p]</span>
-<span id="cb7-197"><a href="#cb7-197" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-198"><a href="#cb7-198" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot binomial and normal distributions</span></span>
-<span id="cb7-199"><a href="#cb7-199" aria-hidden="true" tabindex="-1"></a>  ax[i].plot(dt_plot[<span class="st">'x'</span>], dt_plot[<span class="st">'Binomial'</span>], <span class="st">"o"</span>, label<span class="op">=</span><span class="st">'Binomial'</span>)<span class="op">;</span></span>
-<span id="cb7-200"><a href="#cb7-200" aria-hidden="true" tabindex="-1"></a>  ax[i].plot(dt_plot[<span class="st">'x'</span>], dt_plot[<span class="st">'Normal'</span>], <span class="st">"-"</span>, label<span class="op">=</span><span class="st">'Normal'</span>, linewidth<span class="op">=</span><span class="dv">3</span>)<span class="op">;</span></span>
-<span id="cb7-201"><a href="#cb7-201" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-202"><a href="#cb7-202" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add sub titles</span></span>
-<span id="cb7-203"><a href="#cb7-203" aria-hidden="true" tabindex="-1"></a>  ax[i].set_title(<span class="ss">f"Prob. </span><span class="sc">{</span>_p<span class="op">*</span><span class="dv">100</span><span class="sc">:.0f}</span><span class="ss">% exp. successes </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>_p<span class="sc">:.0f}</span><span class="ss"> exp. failures </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>_p)<span class="sc">:.0f}</span><span class="ss">"</span>)<span class="op">;</span></span>
-<span id="cb7-204"><a href="#cb7-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-205"><a href="#cb7-205" aria-hidden="true" tabindex="-1"></a><span class="co"># add labels</span></span>
-<span id="cb7-206"><a href="#cb7-206" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Probability, %"</span>)<span class="op">;</span></span>
-<span id="cb7-207"><a href="#cb7-207" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"x"</span>)<span class="op">;</span></span>
-<span id="cb7-208"><a href="#cb7-208" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-209"><a href="#cb7-209" aria-hidden="true" tabindex="-1"></a><span class="co"># add legend and white background</span></span>
-<span id="cb7-210"><a href="#cb7-210" aria-hidden="true" tabindex="-1"></a>legend <span class="op">=</span> ax[<span class="dv">1</span>].legend(frameon <span class="op">=</span> <span class="dv">1</span>)<span class="op">;</span></span>
-<span id="cb7-211"><a href="#cb7-211" aria-hidden="true" tabindex="-1"></a>frame <span class="op">=</span> legend.get_frame()<span class="op">;</span></span>
-<span id="cb7-212"><a href="#cb7-212" aria-hidden="true" tabindex="-1"></a>frame.set_color(<span class="st">'white'</span>)<span class="op">;</span></span>
-<span id="cb7-213"><a href="#cb7-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-214"><a href="#cb7-214" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb7-215"><a href="#cb7-215" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb7-216"><a href="#cb7-216" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-217"><a href="#cb7-217" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-218"><a href="#cb7-218" aria-hidden="true" tabindex="-1"></a><span class="fu">## error (Python)</span></span>
-<span id="cb7-219"><a href="#cb7-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-222"><a href="#cb7-222" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb7-223"><a href="#cb7-223" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate error (use DataFrame from previous code chunk)</span></span>
-<span id="cb7-224"><a href="#cb7-224" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Error'</span>] <span class="op">=</span> df.Binomial <span class="op">-</span> df.Normal</span>
-<span id="cb7-225"><a href="#cb7-225" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-226"><a href="#cb7-226" aria-hidden="true" tabindex="-1"></a><span class="co"># create figure</span></span>
-<span id="cb7-227"><a href="#cb7-227" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb7-228"><a href="#cb7-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-229"><a href="#cb7-229" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate over probabilities</span></span>
-<span id="cb7-230"><a href="#cb7-230" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, _p <span class="kw">in</span> <span class="bu">enumerate</span>(p):</span>
-<span id="cb7-231"><a href="#cb7-231" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select data for plotting</span></span>
-<span id="cb7-232"><a href="#cb7-232" aria-hidden="true" tabindex="-1"></a>  dt_plot <span class="op">=</span> df.loc[df[<span class="st">'p'</span>] <span class="op">==</span> _p]</span>
-<span id="cb7-233"><a href="#cb7-233" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-234"><a href="#cb7-234" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot binomial and normal distributions</span></span>
-<span id="cb7-235"><a href="#cb7-235" aria-hidden="true" tabindex="-1"></a>  ax[i].plot(dt_plot[<span class="st">'x'</span>], dt_plot[<span class="st">'Error'</span>], <span class="st">"o"</span>, color<span class="op">=</span><span class="st">'k'</span>)<span class="op">;</span></span>
-<span id="cb7-236"><a href="#cb7-236" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-237"><a href="#cb7-237" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add sub titles</span></span>
-<span id="cb7-238"><a href="#cb7-238" aria-hidden="true" tabindex="-1"></a>  ax[i].set_title(<span class="ss">f"Prob. </span><span class="sc">{</span>_p<span class="op">*</span><span class="dv">100</span><span class="sc">:.0f}</span><span class="ss">% exp. successes </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>_p<span class="sc">:.0f}</span><span class="ss"> exp. failures </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>_p)<span class="sc">:.0f}</span><span class="ss">"</span>)<span class="op">;</span></span>
-<span id="cb7-239"><a href="#cb7-239" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-240"><a href="#cb7-240" aria-hidden="true" tabindex="-1"></a><span class="co"># add labels</span></span>
-<span id="cb7-241"><a href="#cb7-241" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Probability, %"</span>)<span class="op">;</span></span>
-<span id="cb7-242"><a href="#cb7-242" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"x"</span>)<span class="op">;</span></span>
-<span id="cb7-243"><a href="#cb7-243" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-244"><a href="#cb7-244" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb7-245"><a href="#cb7-245" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb7-246"><a href="#cb7-246" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb7-247"><a href="#cb7-247" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb7-248"><a href="#cb7-248" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-249"><a href="#cb7-249" aria-hidden="true" tabindex="-1"></a>The first thing to notice is that the "Success-Failure" criterion is only met for the p=30% case. In tabs <span class="in">`error`</span> one can see that approximation error, i.e. Binomial prob. minus Normal, is more than 4% for 5% and 95% examples. </span>
-<span id="cb7-250"><a href="#cb7-250" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-251"><a href="#cb7-251" aria-hidden="true" tabindex="-1"></a><span class="fu">## Independent observations</span></span>
-<span id="cb7-252"><a href="#cb7-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-253"><a href="#cb7-253" aria-hidden="true" tabindex="-1"></a><span class="fu">## References</span></span>
-<span id="cb7-254"><a href="#cb7-254" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-255"><a href="#cb7-255" aria-hidden="true" tabindex="-1"></a>Content for this blog post was prepared using following references:</span>
-<span id="cb7-256"><a href="#cb7-256" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-257"><a href="#cb7-257" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://statistics.laerd.com/spss-tutorials/binomial-test-using-spss-statistics.php</span>
-<span id="cb7-258"><a href="#cb7-258" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>http://mlwiki.org/index.php/Binomial_Proportion_Tests</span>
-<span id="cb7-259"><a href="#cb7-259" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://sites.ualberta.ca/\~lkgray/uploads/7/3/6/2/7362679/slides\_-\_binomialproportionaltests.pdf</span>
-<span id="cb7-260"><a href="#cb7-260" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://www.technologynetworks.com/informatics/articles/the-binomial-test-366022</span>
-<span id="cb7-261"><a href="#cb7-261" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://towardsdatascience.com/turning-a-two-sample-event-rate-test-into-a-one-sample-binomial-test-23fbfb9d1df6</span>
-<span id="cb7-262"><a href="#cb7-262" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://www.studysmarter.us/explanations/math/statistics/binomial-hypothesis-test/</span>
-<span id="cb7-263"><a href="#cb7-263" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://www.statology.org/success-failure-condition/</span>
-<span id="cb7-264"><a href="#cb7-264" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://towardsdatascience.com/bernoulli-and-binomial-random-variables-d0698288dd36</span>
-<span id="cb7-265"><a href="#cb7-265" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://ubc-mds.github.io/DSCI_551_stat-prob-dsci/lectures/simulation.html</span>
-<span id="cb7-266"><a href="#cb7-266" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://math.stackexchange.com/questions/1978138/probability-of-x-red-balls-when-drawing-y-balls-from-a-red-and-b-green-balls</span>
+<div class="sourceCode" id="cb15" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "One-Sample Binomial Test (Part 1)"</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Tomas Kristijonas Uždavinys"</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2023-03-19"</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [R, Python, Statistics]</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introduction</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>The binomial test is a statistical test used to determine whether the proportion of cases in one of only two categories is equivalent to a pre-specified proportion. Categories could include the default rate of clients within the next 12 months, patients with high or low risk of heart disease, potential customers who are likely or not likely to make a purchase, or the rate of manufacturing defects. This widely used test finds applications in diverse fields, including credit risk, medicine, and manufacturing. It is also known to as the **one-sample proportion test** or **test of one proportion**.</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>As with all statistical tests, the binomial test has assumptions and conditions that must be met before applying it to real-life data:</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>The "success-failure" condition requires observing a minimum of **n** successes and **n** failures in the sample;</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>observations are independent, i.e. the occurrence of one event does not affect the probability of occurrence of the other.</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>The aim of this blog post is to showcase the ramifications of failing to meet "success-failure" condition critereon. Practical examples are coded in both <span class="in">`R`</span> and <span class="in">`Python`</span> languages.</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>::: panel-tabset</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a><span class="fu">## R</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries for blog post</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a><span class="fu">## Python</span></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages for blog post</span></span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.graph_objects <span class="im">as</span> go</span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> binom, norm</span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a><span class="co"># set style</span></span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"ggplot"</span>)</span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a><span class="fu">## Theory</span></span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>Suppose that we have a sample where outcomes are binary - e.g. only "success" and "failure". For the given sample, we would like to estimate the true proportion and also set up a statistical test to verify whether if the proportion is equal to some value, e.g. expected.</span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>First, we calculate a point estimate:</span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>$$p = \frac{n_s}{n}$$</span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a>, where $n$ - sample size and $n_s$ - the number of successful observations (or it can be the number of failures).</span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a>$$SE = \sqrt{\frac{p \cdot (1 - p)}{n}}$$</span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a>, where $SE$ is standard error. To perform a test, one first needs to derive a Null hypothesis:</span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a>$$H_0: p = p_0$$</span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a>and an alternative hypothesis:</span>
+<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>one-sided $H_A: p &lt; p_0$ or $H_A: p &gt; p_0$,</span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>two-sided $H_A: p \ne p_0$.</span>
+<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a>Finally, we needs to calculate $Z$ statistics:</span>
+<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a>$$Z = \frac{p_0-p}{SE}$$</span>
+<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a>Obtaining the value of $Z$ enables us to either compute confidence intervals ($CI$) or reject $H_0$ in favor of $H_A$</span>
+<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a><span class="fu">## “Success-failure” condition</span></span>
+<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a>In order to approximate any distribution as normal, the mean ($\mu$) and standard deviation ($\sigma$) must be known/calculated. For the Binomial distribution comprising $n$ experiments and a probability of $p$ normal distribution mean will be located at:</span>
+<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a>To approximate any distribution as normal, it is imperative to calculate the mean ($\mu$) and standard deviation ($\sigma$). For the Binomial distribution, which consists of a number of experiments $n$ and a probability $p$, the mean of the normal distribution is:</span>
+<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a>$$\mu = n \cdot p$$</span>
+<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a>and the standard deviation:</span>
+<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a>$$\sigma = \sqrt{n \cdot p \cdot (1 - p)}.$$</span>
+<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a>Meeting the "Success-Failure" condition is crucial to approximate Binomial distribution as Normal. Below, I present an instance of 50 Binomial events with varying probability rates of 5%, 30%, and 90%.</span>
+<span id="cb15-93"><a href="#cb15-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-94"><a href="#cb15-94" aria-hidden="true" tabindex="-1"></a>::: panel-tabset</span>
+<span id="cb15-95"><a href="#cb15-95" aria-hidden="true" tabindex="-1"></a><span class="fu">## binomial vs. normal (R)</span></span>
+<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-99"><a href="#cb15-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-100"><a href="#cb15-100" aria-hidden="true" tabindex="-1"></a><span class="co"># probabilities</span></span>
+<span id="cb15-101"><a href="#cb15-101" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.3</span>, <span class="fl">0.9</span>)</span>
+<span id="cb15-102"><a href="#cb15-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-103"><a href="#cb15-103" aria-hidden="true" tabindex="-1"></a><span class="co"># successes</span></span>
+<span id="cb15-104"><a href="#cb15-104" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">50</span></span>
+<span id="cb15-105"><a href="#cb15-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-106"><a href="#cb15-106" aria-hidden="true" tabindex="-1"></a><span class="co"># create data.table</span></span>
+<span id="cb15-107"><a href="#cb15-107" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">CJ</span>(p, x)</span>
+<span id="cb15-108"><a href="#cb15-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-109"><a href="#cb15-109" aria-hidden="true" tabindex="-1"></a><span class="co"># add size column</span></span>
+<span id="cb15-110"><a href="#cb15-110" aria-hidden="true" tabindex="-1"></a>dt[, size <span class="sc">:</span><span class="er">=</span> <span class="dv">50</span>]</span>
+<span id="cb15-111"><a href="#cb15-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-112"><a href="#cb15-112" aria-hidden="true" tabindex="-1"></a><span class="co"># add binomial probability</span></span>
+<span id="cb15-113"><a href="#cb15-113" aria-hidden="true" tabindex="-1"></a>dt[, Binomial <span class="sc">:</span><span class="er">=</span> <span class="fu">dbinom</span>(x, <span class="at">size=</span>size, <span class="at">prob=</span>p) <span class="sc">*</span> <span class="dv">100</span>]</span>
+<span id="cb15-114"><a href="#cb15-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-115"><a href="#cb15-115" aria-hidden="true" tabindex="-1"></a><span class="co"># create label column</span></span>
+<span id="cb15-116"><a href="#cb15-116" aria-hidden="true" tabindex="-1"></a>dt[, label <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">"Prob: "</span>, <span class="fu">round</span>(p<span class="sc">*</span><span class="dv">100</span>),</span>
+<span id="cb15-117"><a href="#cb15-117" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"%, exp. successes "</span>, <span class="fu">round</span>(p<span class="sc">*</span>size),</span>
+<span id="cb15-118"><a href="#cb15-118" aria-hidden="true" tabindex="-1"></a>                     <span class="st">" exp. failures "</span>, <span class="fu">round</span>((<span class="dv">1</span><span class="sc">-</span>p)<span class="sc">*</span>size))]</span>
+<span id="cb15-119"><a href="#cb15-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-120"><a href="#cb15-120" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate mean and standard deviation</span></span>
+<span id="cb15-121"><a href="#cb15-121" aria-hidden="true" tabindex="-1"></a>dt[, mu <span class="sc">:</span><span class="er">=</span> size <span class="sc">*</span> p]</span>
+<span id="cb15-122"><a href="#cb15-122" aria-hidden="true" tabindex="-1"></a>dt[, st.dev <span class="sc">:</span><span class="er">=</span> <span class="fu">sqrt</span>(p <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p) <span class="sc">*</span> size)]</span>
+<span id="cb15-123"><a href="#cb15-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-124"><a href="#cb15-124" aria-hidden="true" tabindex="-1"></a><span class="co"># get norm distribution</span></span>
+<span id="cb15-125"><a href="#cb15-125" aria-hidden="true" tabindex="-1"></a>dt[, Normal <span class="sc">:</span><span class="er">=</span> <span class="fu">dnorm</span>(x, <span class="at">mean=</span>mu, <span class="at">sd =</span> st.dev) <span class="sc">*</span> <span class="dv">100</span>]</span>
+<span id="cb15-126"><a href="#cb15-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-127"><a href="#cb15-127" aria-hidden="true" tabindex="-1"></a><span class="co"># convert to ordered factor</span></span>
+<span id="cb15-128"><a href="#cb15-128" aria-hidden="true" tabindex="-1"></a>dt[, label <span class="sc">:</span><span class="er">=</span> <span class="fu">factor</span>(label, <span class="at">levels=</span><span class="fu">c</span>(<span class="st">"Prob: 5%, exp. successes 2 exp. failures 48"</span>,</span>
+<span id="cb15-129"><a href="#cb15-129" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">"Prob: 30%, exp. successes 15 exp. failures 35"</span>,</span>
+<span id="cb15-130"><a href="#cb15-130" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">"Prob: 90%, exp. successes 45 exp. failures 5"</span> ))]</span>
+<span id="cb15-131"><a href="#cb15-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-132"><a href="#cb15-132" aria-hidden="true" tabindex="-1"></a><span class="co"># reshape for plotting</span></span>
+<span id="cb15-133"><a href="#cb15-133" aria-hidden="true" tabindex="-1"></a>dt.plot <span class="ot">&lt;-</span> <span class="fu">melt</span>(dt, <span class="at">id.vars =</span> <span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"label"</span>),</span>
+<span id="cb15-134"><a href="#cb15-134" aria-hidden="true" tabindex="-1"></a>                <span class="at">measure.vars =</span> <span class="fu">c</span>(<span class="st">"Binomial"</span>, <span class="st">"Normal"</span>),</span>
+<span id="cb15-135"><a href="#cb15-135" aria-hidden="true" tabindex="-1"></a>                <span class="at">variable.name =</span> <span class="fu">c</span>(<span class="st">"Type"</span>),</span>
+<span id="cb15-136"><a href="#cb15-136" aria-hidden="true" tabindex="-1"></a>                <span class="at">value.name =</span> <span class="fu">c</span>(<span class="st">'prob'</span>))</span>
+<span id="cb15-137"><a href="#cb15-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-138"><a href="#cb15-138" aria-hidden="true" tabindex="-1"></a><span class="co"># create figure</span></span>
+<span id="cb15-139"><a href="#cb15-139" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dt.plot, <span class="fu">aes</span>(x, prob, <span class="at">color=</span>Type)) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>label, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Probability, %"</span>)</span>
+<span id="cb15-140"><a href="#cb15-140" aria-hidden="true" tabindex="-1"></a>fig</span>
+<span id="cb15-141"><a href="#cb15-141" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-142"><a href="#cb15-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-143"><a href="#cb15-143" aria-hidden="true" tabindex="-1"></a><span class="fu">## error (R)</span></span>
+<span id="cb15-144"><a href="#cb15-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-147"><a href="#cb15-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-148"><a href="#cb15-148" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate error (use data.table from previous code chunk)</span></span>
+<span id="cb15-149"><a href="#cb15-149" aria-hidden="true" tabindex="-1"></a>dt[, Error <span class="sc">:</span><span class="er">=</span> Binomial <span class="sc">-</span> Normal]</span>
+<span id="cb15-150"><a href="#cb15-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-151"><a href="#cb15-151" aria-hidden="true" tabindex="-1"></a><span class="co"># create figure</span></span>
+<span id="cb15-152"><a href="#cb15-152" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dt, <span class="fu">aes</span>(x, Error)) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>label, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Error (binom. - norm.), %"</span>)</span>
+<span id="cb15-153"><a href="#cb15-153" aria-hidden="true" tabindex="-1"></a>fig</span>
+<span id="cb15-154"><a href="#cb15-154" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-155"><a href="#cb15-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-156"><a href="#cb15-156" aria-hidden="true" tabindex="-1"></a><span class="fu">## binomial vs. normal (Python)</span></span>
+<span id="cb15-157"><a href="#cb15-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-160"><a href="#cb15-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-161"><a href="#cb15-161" aria-hidden="true" tabindex="-1"></a><span class="co"># probabilities</span></span>
+<span id="cb15-162"><a href="#cb15-162" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> [<span class="fl">0.05</span>, <span class="fl">0.3</span>, <span class="fl">0.9</span>]</span>
+<span id="cb15-163"><a href="#cb15-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-164"><a href="#cb15-164" aria-hidden="true" tabindex="-1"></a><span class="co"># successes</span></span>
+<span id="cb15-165"><a href="#cb15-165" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.arange(<span class="dv">51</span>)</span>
+<span id="cb15-166"><a href="#cb15-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-167"><a href="#cb15-167" aria-hidden="true" tabindex="-1"></a><span class="co"># create DataFrame with all combinations</span></span>
+<span id="cb15-168"><a href="#cb15-168" aria-hidden="true" tabindex="-1"></a>df_1 <span class="op">=</span> pd.DataFrame({<span class="st">'p'</span>: p})</span>
+<span id="cb15-169"><a href="#cb15-169" aria-hidden="true" tabindex="-1"></a>df_2 <span class="op">=</span> pd.DataFrame({<span class="st">'x'</span>: x})</span>
+<span id="cb15-170"><a href="#cb15-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-171"><a href="#cb15-171" aria-hidden="true" tabindex="-1"></a><span class="co"># create key for joining</span></span>
+<span id="cb15-172"><a href="#cb15-172" aria-hidden="true" tabindex="-1"></a>df_1[<span class="st">'key'</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb15-173"><a href="#cb15-173" aria-hidden="true" tabindex="-1"></a>df_2[<span class="st">'key'</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb15-174"><a href="#cb15-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-175"><a href="#cb15-175" aria-hidden="true" tabindex="-1"></a><span class="co"># perform cross join</span></span>
+<span id="cb15-176"><a href="#cb15-176" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df_1.merge(df_2, on<span class="op">=</span><span class="st">'key'</span>, how<span class="op">=</span><span class="st">'outer'</span>)</span>
+<span id="cb15-177"><a href="#cb15-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-178"><a href="#cb15-178" aria-hidden="true" tabindex="-1"></a><span class="co"># drop key column</span></span>
+<span id="cb15-179"><a href="#cb15-179" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> df[<span class="st">'key'</span>]</span>
+<span id="cb15-180"><a href="#cb15-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-181"><a href="#cb15-181" aria-hidden="true" tabindex="-1"></a><span class="co"># add size value</span></span>
+<span id="cb15-182"><a href="#cb15-182" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'size'</span>] <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb15-183"><a href="#cb15-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-184"><a href="#cb15-184" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate binomial probability</span></span>
+<span id="cb15-185"><a href="#cb15-185" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Binomial'</span>] <span class="op">=</span> binom.pmf(df[<span class="st">'x'</span>], df[<span class="st">'size'</span>], df[<span class="st">'p'</span>]) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb15-186"><a href="#cb15-186" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb15-187"><a href="#cb15-187" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate mean and standard deviation</span></span>
+<span id="cb15-188"><a href="#cb15-188" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'mu'</span>] <span class="op">=</span> df[<span class="st">'size'</span>] <span class="op">*</span> df[<span class="st">'p'</span>]</span>
+<span id="cb15-189"><a href="#cb15-189" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'std'</span>] <span class="op">=</span> np.sqrt(df[<span class="st">'p'</span>] <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> df[<span class="st">'p'</span>]) <span class="op">*</span> df[<span class="st">'size'</span>])</span>
+<span id="cb15-190"><a href="#cb15-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-191"><a href="#cb15-191" aria-hidden="true" tabindex="-1"></a><span class="co"># get norm distribution</span></span>
+<span id="cb15-192"><a href="#cb15-192" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Normal'</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> x: norm.pdf(x[<span class="st">'x'</span>], x[<span class="st">'mu'</span>], x[<span class="st">'std'</span>]) <span class="op">*</span> <span class="dv">100</span>, axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb15-193"><a href="#cb15-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-194"><a href="#cb15-194" aria-hidden="true" tabindex="-1"></a><span class="co"># create figure</span></span>
+<span id="cb15-195"><a href="#cb15-195" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-196"><a href="#cb15-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-197"><a href="#cb15-197" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate over probabilities</span></span>
+<span id="cb15-198"><a href="#cb15-198" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, _p <span class="kw">in</span> <span class="bu">enumerate</span>(p):</span>
+<span id="cb15-199"><a href="#cb15-199" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select data for plotting</span></span>
+<span id="cb15-200"><a href="#cb15-200" aria-hidden="true" tabindex="-1"></a>  dt_plot <span class="op">=</span> df.loc[df[<span class="st">'p'</span>] <span class="op">==</span> _p].copy()</span>
+<span id="cb15-201"><a href="#cb15-201" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-202"><a href="#cb15-202" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot binomial and normal distributions</span></span>
+<span id="cb15-203"><a href="#cb15-203" aria-hidden="true" tabindex="-1"></a>  ax[i].plot(dt_plot[<span class="st">'x'</span>], dt_plot[<span class="st">'Binomial'</span>], <span class="st">"o"</span>, label<span class="op">=</span><span class="st">'Binomial'</span>)<span class="op">;</span></span>
+<span id="cb15-204"><a href="#cb15-204" aria-hidden="true" tabindex="-1"></a>  ax[i].plot(dt_plot[<span class="st">'x'</span>], dt_plot[<span class="st">'Normal'</span>], <span class="st">"-"</span>, label<span class="op">=</span><span class="st">'Normal'</span>, linewidth<span class="op">=</span><span class="dv">3</span>)<span class="op">;</span></span>
+<span id="cb15-205"><a href="#cb15-205" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-206"><a href="#cb15-206" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add sub titles</span></span>
+<span id="cb15-207"><a href="#cb15-207" aria-hidden="true" tabindex="-1"></a>  ax[i].set_title(<span class="ss">f"Prob. </span><span class="sc">{</span>_p<span class="op">*</span><span class="dv">100</span><span class="sc">:.0f}</span><span class="ss">% expected </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>_p<span class="sc">:.0f}</span><span class="ss"> successes and </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>_p)<span class="sc">:.0f}</span><span class="ss"> failures"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span></span>
+<span id="cb15-208"><a href="#cb15-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-209"><a href="#cb15-209" aria-hidden="true" tabindex="-1"></a><span class="co"># add labels</span></span>
+<span id="cb15-210"><a href="#cb15-210" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Probability, %"</span>)<span class="op">;</span></span>
+<span id="cb15-211"><a href="#cb15-211" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"x"</span>)<span class="op">;</span></span>
+<span id="cb15-212"><a href="#cb15-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-213"><a href="#cb15-213" aria-hidden="true" tabindex="-1"></a><span class="co"># add legend and white background</span></span>
+<span id="cb15-214"><a href="#cb15-214" aria-hidden="true" tabindex="-1"></a>legend <span class="op">=</span> ax[<span class="dv">1</span>].legend(frameon <span class="op">=</span> <span class="dv">1</span>)<span class="op">;</span></span>
+<span id="cb15-215"><a href="#cb15-215" aria-hidden="true" tabindex="-1"></a>frame <span class="op">=</span> legend.get_frame()<span class="op">;</span></span>
+<span id="cb15-216"><a href="#cb15-216" aria-hidden="true" tabindex="-1"></a>frame.set_color(<span class="st">'white'</span>)<span class="op">;</span></span>
+<span id="cb15-217"><a href="#cb15-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-218"><a href="#cb15-218" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb15-219"><a href="#cb15-219" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb15-220"><a href="#cb15-220" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-221"><a href="#cb15-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-222"><a href="#cb15-222" aria-hidden="true" tabindex="-1"></a><span class="fu">## error (Python)</span></span>
+<span id="cb15-223"><a href="#cb15-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-226"><a href="#cb15-226" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-227"><a href="#cb15-227" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate error (use DataFrame from previous code chunk)</span></span>
+<span id="cb15-228"><a href="#cb15-228" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Error'</span>] <span class="op">=</span> df.Binomial <span class="op">-</span> df.Normal</span>
+<span id="cb15-229"><a href="#cb15-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-230"><a href="#cb15-230" aria-hidden="true" tabindex="-1"></a><span class="co"># create figure</span></span>
+<span id="cb15-231"><a href="#cb15-231" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-232"><a href="#cb15-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-233"><a href="#cb15-233" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate over probabilities</span></span>
+<span id="cb15-234"><a href="#cb15-234" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, _p <span class="kw">in</span> <span class="bu">enumerate</span>(p):</span>
+<span id="cb15-235"><a href="#cb15-235" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select data for plotting</span></span>
+<span id="cb15-236"><a href="#cb15-236" aria-hidden="true" tabindex="-1"></a>  dt_plot <span class="op">=</span> df.loc[df[<span class="st">'p'</span>] <span class="op">==</span> _p]</span>
+<span id="cb15-237"><a href="#cb15-237" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-238"><a href="#cb15-238" aria-hidden="true" tabindex="-1"></a>  <span class="co"># plot binomial and normal distributions</span></span>
+<span id="cb15-239"><a href="#cb15-239" aria-hidden="true" tabindex="-1"></a>  ax[i].plot(dt_plot[<span class="st">'x'</span>], dt_plot[<span class="st">'Error'</span>], <span class="st">"o"</span>, color<span class="op">=</span><span class="st">'k'</span>)<span class="op">;</span></span>
+<span id="cb15-240"><a href="#cb15-240" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-241"><a href="#cb15-241" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add sub titles</span></span>
+<span id="cb15-242"><a href="#cb15-242" aria-hidden="true" tabindex="-1"></a>  ax[i].set_title(<span class="ss">f"Prob. </span><span class="sc">{</span>_p<span class="op">*</span><span class="dv">100</span><span class="sc">:.0f}</span><span class="ss">% expected </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>_p<span class="sc">:.0f}</span><span class="ss"> successes and </span><span class="sc">{</span><span class="dv">50</span><span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>_p)<span class="sc">:.0f}</span><span class="ss"> failures"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span></span>
+<span id="cb15-243"><a href="#cb15-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-244"><a href="#cb15-244" aria-hidden="true" tabindex="-1"></a><span class="co"># add labels</span></span>
+<span id="cb15-245"><a href="#cb15-245" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">1</span>].set_ylabel(<span class="st">"Probability, %"</span>)<span class="op">;</span></span>
+<span id="cb15-246"><a href="#cb15-246" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">2</span>].set_xlabel(<span class="st">"x"</span>)<span class="op">;</span></span>
+<span id="cb15-247"><a href="#cb15-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-248"><a href="#cb15-248" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb15-249"><a href="#cb15-249" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb15-250"><a href="#cb15-250" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-251"><a href="#cb15-251" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb15-252"><a href="#cb15-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-253"><a href="#cb15-253" aria-hidden="true" tabindex="-1"></a>The first thing to notice is that the "Success-Failure" criterion is only met for the p=30% case. In tabs <span class="in">`error`</span> one can see that approximation error, i.e. the difference between Binomial probability and Normal distribution approximations, is above 2% for the $p=5\%$ and $p=90\%$ examples.</span>
+<span id="cb15-254"><a href="#cb15-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-255"><a href="#cb15-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## Estimating approximation error</span></span>
+<span id="cb15-256"><a href="#cb15-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-257"><a href="#cb15-257" aria-hidden="true" tabindex="-1"></a>There are a different way to calculate approximation error dependence on sample size. Let's establish 3 types of probabilities:</span>
+<span id="cb15-258"><a href="#cb15-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-259"><a href="#cb15-259" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>$p_1$ we would observe more than expected number of occurrences,</span>
+<span id="cb15-260"><a href="#cb15-260" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>$p_2$ we would observe expected number of occurrences,</span>
+<span id="cb15-261"><a href="#cb15-261" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>$p_3$ we would observe less than expected number of occurrences.</span>
+<span id="cb15-262"><a href="#cb15-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-263"><a href="#cb15-263" aria-hidden="true" tabindex="-1"></a>We have to be mindful, when comparing discrete binomial distribution with a continuous normal distribution. In examples bellow, we can compare areas under the curve for both distributions using interactive charts by <span class="in">`plotly`</span> library/package. First I create a function to visualize both pint cand cumulative probabilities using interactive charts.</span>
+<span id="cb15-264"><a href="#cb15-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-265"><a href="#cb15-265" aria-hidden="true" tabindex="-1"></a>::: panel-tabset</span>
+<span id="cb15-266"><a href="#cb15-266" aria-hidden="true" tabindex="-1"></a><span class="fu">## plot_ly function (R)</span></span>
+<span id="cb15-267"><a href="#cb15-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-270"><a href="#cb15-270" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-271"><a href="#cb15-271" aria-hidden="true" tabindex="-1"></a>PlotDistributions <span class="ot">&lt;-</span> <span class="cf">function</span>(prob, size){</span>
+<span id="cb15-272"><a href="#cb15-272" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create observation vector</span></span>
+<span id="cb15-273"><a href="#cb15-273" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span>size</span>
+<span id="cb15-274"><a href="#cb15-274" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-275"><a href="#cb15-275" aria-hidden="true" tabindex="-1"></a>  <span class="co"># get probabilities for both binomial and norm distributions</span></span>
+<span id="cb15-276"><a href="#cb15-276" aria-hidden="true" tabindex="-1"></a>  y.binom <span class="ot">&lt;-</span> <span class="fu">dbinom</span>(x, <span class="at">size=</span>size, <span class="at">prob=</span>prob) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb15-277"><a href="#cb15-277" aria-hidden="true" tabindex="-1"></a>  y.norm <span class="ot">&lt;-</span> <span class="fu">dnorm</span>(x, <span class="at">mean=</span>size <span class="sc">*</span> prob, <span class="at">sd =</span> <span class="fu">sqrt</span>(prob <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> prob) <span class="sc">*</span> size)) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb15-278"><a href="#cb15-278" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-279"><a href="#cb15-279" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create data table for plotting</span></span>
+<span id="cb15-280"><a href="#cb15-280" aria-hidden="true" tabindex="-1"></a>  dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">x =</span> x,</span>
+<span id="cb15-281"><a href="#cb15-281" aria-hidden="true" tabindex="-1"></a>                   <span class="at">prob.binom =</span> y.binom,</span>
+<span id="cb15-282"><a href="#cb15-282" aria-hidden="true" tabindex="-1"></a>                   <span class="at">prob.norm =</span> y.norm)</span>
+<span id="cb15-283"><a href="#cb15-283" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-284"><a href="#cb15-284" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add columns with hover information</span></span>
+<span id="cb15-285"><a href="#cb15-285" aria-hidden="true" tabindex="-1"></a>  dt[, text<span class="fl">.1</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">'Point estimate probability&lt;br&gt;to observer exactly '</span>, x,</span>
+<span id="cb15-286"><a href="#cb15-286" aria-hidden="true" tabindex="-1"></a>                        <span class="st">' events is '</span>, <span class="fu">round</span>(y.binom, <span class="dv">3</span>), <span class="st">"%"</span>)]</span>
+<span id="cb15-287"><a href="#cb15-287" aria-hidden="true" tabindex="-1"></a>  dt[, text<span class="fl">.2</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">'Point estimate probability&lt;br&gt;to observer exactly '</span>, x,</span>
+<span id="cb15-288"><a href="#cb15-288" aria-hidden="true" tabindex="-1"></a>                        <span class="st">' events is '</span>, <span class="fu">round</span>(y.norm, <span class="dv">3</span>), <span class="st">"%"</span>)]</span>
+<span id="cb15-289"><a href="#cb15-289" aria-hidden="true" tabindex="-1"></a>  dt[, text<span class="fl">.3</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">paste0</span>(<span class="st">'Point estimate error&lt;br&gt;to observer exactly '</span>, x,</span>
+<span id="cb15-290"><a href="#cb15-290" aria-hidden="true" tabindex="-1"></a>                        <span class="st">' events is '</span>, <span class="fu">round</span>(y.binom <span class="sc">-</span> y.norm, <span class="dv">3</span>), <span class="st">"%"</span>)]</span>
+<span id="cb15-291"><a href="#cb15-291" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create figure</span></span>
+<span id="cb15-292"><a href="#cb15-292" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> <span class="fu">plot_ly</span>(<span class="at">data =</span> dt, <span class="at">type =</span> <span class="st">'scatter'</span>, <span class="at">mode =</span> <span class="st">'lines'</span>)</span>
+<span id="cb15-293"><a href="#cb15-293" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-294"><a href="#cb15-294" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add traces</span></span>
+<span id="cb15-295"><a href="#cb15-295" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">add_trace</span>(<span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span>prob.norm, <span class="at">text =</span> <span class="sc">~</span>text<span class="fl">.1</span>,</span>
+<span id="cb15-296"><a href="#cb15-296" aria-hidden="true" tabindex="-1"></a>                           <span class="at">name =</span> <span class="st">'Normal'</span>,<span class="at">mode =</span> <span class="st">'lines'</span>,</span>
+<span id="cb15-297"><a href="#cb15-297" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hoverinfo =</span> <span class="st">'text'</span>,</span>
+<span id="cb15-298"><a href="#cb15-298" aria-hidden="true" tabindex="-1"></a>                           <span class="at">line =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"#FF6666"</span>, <span class="at">width =</span> <span class="dv">5</span>))</span>
+<span id="cb15-299"><a href="#cb15-299" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">add_trace</span>(<span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span>prob.binom, <span class="at">text =</span> <span class="sc">~</span>text<span class="fl">.2</span>,</span>
+<span id="cb15-300"><a href="#cb15-300" aria-hidden="true" tabindex="-1"></a>                           <span class="at">name =</span> <span class="st">'Binomial'</span>,<span class="at">mode =</span> <span class="st">'markers'</span>,</span>
+<span id="cb15-301"><a href="#cb15-301" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hoverinfo =</span> <span class="st">'text'</span>,</span>
+<span id="cb15-302"><a href="#cb15-302" aria-hidden="true" tabindex="-1"></a>                           <span class="at">marker =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"#3399FF"</span>, <span class="at">size =</span> <span class="dv">12</span>))</span>
+<span id="cb15-303"><a href="#cb15-303" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">add_trace</span>(<span class="at">x =</span> <span class="sc">~</span>x, <span class="at">y =</span> <span class="sc">~</span>(prob.binom<span class="sc">-</span>prob.norm), <span class="at">text =</span> <span class="sc">~</span>text<span class="fl">.3</span>,</span>
+<span id="cb15-304"><a href="#cb15-304" aria-hidden="true" tabindex="-1"></a>                           <span class="at">name =</span> <span class="st">'Error'</span>,<span class="at">mode =</span> <span class="st">'lines+markers'</span>,</span>
+<span id="cb15-305"><a href="#cb15-305" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hoverinfo =</span> <span class="st">'text'</span>,</span>
+<span id="cb15-306"><a href="#cb15-306" aria-hidden="true" tabindex="-1"></a>                           <span class="at">line =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">width =</span> <span class="dv">5</span>),</span>
+<span id="cb15-307"><a href="#cb15-307" aria-hidden="true" tabindex="-1"></a>                           <span class="at">marker =</span> <span class="fu">list</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb15-308"><a href="#cb15-308" aria-hidden="true" tabindex="-1"></a>                           <span class="at">visible =</span> <span class="st">"legendonly"</span>) </span>
+<span id="cb15-309"><a href="#cb15-309" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-310"><a href="#cb15-310" aria-hidden="true" tabindex="-1"></a>  <span class="co"># update layout</span></span>
+<span id="cb15-311"><a href="#cb15-311" aria-hidden="true" tabindex="-1"></a>  fig <span class="ot">&lt;-</span> fig <span class="sc">%&gt;%</span> <span class="fu">layout</span>(<span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"p = "</span>, <span class="fu">round</span>(prob<span class="sc">*</span><span class="dv">100</span>), <span class="st">"%, "</span>, size, <span class="st">" trials"</span>),</span>
+<span id="cb15-312"><a href="#cb15-312" aria-hidden="true" tabindex="-1"></a>                        <span class="at">xaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">"Observations"</span>),</span>
+<span id="cb15-313"><a href="#cb15-313" aria-hidden="true" tabindex="-1"></a>                        <span class="at">yaxis =</span> <span class="fu">list</span> (<span class="at">title =</span> <span class="st">"Probability, %"</span>),</span>
+<span id="cb15-314"><a href="#cb15-314" aria-hidden="true" tabindex="-1"></a>                        <span class="at">hovermode =</span> <span class="st">"x unified"</span>,</span>
+<span id="cb15-315"><a href="#cb15-315" aria-hidden="true" tabindex="-1"></a>                        <span class="at">legend=</span><span class="fu">list</span>(<span class="at">title=</span><span class="fu">list</span>(<span class="at">text=</span><span class="st">'&lt;b&gt; Distributions &lt;/b&gt;'</span>)))</span>
+<span id="cb15-316"><a href="#cb15-316" aria-hidden="true" tabindex="-1"></a>  <span class="co"># return figure</span></span>
+<span id="cb15-317"><a href="#cb15-317" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(fig)</span>
+<span id="cb15-318"><a href="#cb15-318" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-319"><a href="#cb15-319" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-320"><a href="#cb15-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-321"><a href="#cb15-321" aria-hidden="true" tabindex="-1"></a><span class="fu">## plotly function (Python)</span></span>
+<span id="cb15-322"><a href="#cb15-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-325"><a href="#cb15-325" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-326"><a href="#cb15-326" aria-hidden="true" tabindex="-1"></a><span class="co"># create function for plotting distributions</span></span>
+<span id="cb15-327"><a href="#cb15-327" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_distributions(prob, size):</span>
+<span id="cb15-328"><a href="#cb15-328" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create observation vector</span></span>
+<span id="cb15-329"><a href="#cb15-329" aria-hidden="true" tabindex="-1"></a>  x <span class="op">=</span> np.arange(size<span class="op">+</span><span class="dv">1</span>)</span>
+<span id="cb15-330"><a href="#cb15-330" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-331"><a href="#cb15-331" aria-hidden="true" tabindex="-1"></a>  <span class="co"># get probabilities for both binomial and norm distributions</span></span>
+<span id="cb15-332"><a href="#cb15-332" aria-hidden="true" tabindex="-1"></a>  y_binom <span class="op">=</span> binom.pmf(x, n<span class="op">=</span>size, p<span class="op">=</span>prob) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb15-333"><a href="#cb15-333" aria-hidden="true" tabindex="-1"></a>  y_norm <span class="op">=</span> norm.pdf(x, loc <span class="op">=</span> size <span class="op">*</span> prob, scale <span class="op">=</span> prob <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> prob) <span class="op">*</span> size) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb15-334"><a href="#cb15-334" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-335"><a href="#cb15-335" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate Data.Frame</span></span>
+<span id="cb15-336"><a href="#cb15-336" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> pd.DataFrame({<span class="st">'x'</span>: x, <span class="st">'binom'</span>: y_binom, <span class="st">'norm'</span>: y_norm})</span>
+<span id="cb15-337"><a href="#cb15-337" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-338"><a href="#cb15-338" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calculate error</span></span>
+<span id="cb15-339"><a href="#cb15-339" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'error'</span>] <span class="op">=</span> df.binom <span class="op">-</span> df.norm</span>
+<span id="cb15-340"><a href="#cb15-340" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-341"><a href="#cb15-341" aria-hidden="true" tabindex="-1"></a>  <span class="co"># generate hover messages</span></span>
+<span id="cb15-342"><a href="#cb15-342" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'text_1'</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="ss">f'Point estimate probability&lt;br&gt;to observer exactly </span><span class="sc">{</span>x[<span class="st">"x"</span>]<span class="sc">:.0f}</span><span class="ss"> events is </span><span class="sc">{</span>x[<span class="st">"binom"</span>]<span class="sc">:.3f}</span><span class="ss">%'</span>, axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb15-343"><a href="#cb15-343" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'text_2'</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="ss">f'Point estimate probability&lt;br&gt;to observer exactly </span><span class="sc">{</span>x[<span class="st">"x"</span>]<span class="sc">:.0f}</span><span class="ss"> events is </span><span class="sc">{</span>x[<span class="st">"norm"</span>]<span class="sc">:.3f}</span><span class="ss">%'</span>, axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb15-344"><a href="#cb15-344" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'text_3'</span>] <span class="op">=</span> df.<span class="bu">apply</span>(<span class="kw">lambda</span> x: <span class="ss">f'Point estimate error&lt;br&gt;to observer exactly </span><span class="sc">{</span>x[<span class="st">"x"</span>]<span class="sc">:.0f}</span><span class="ss"> events is </span><span class="sc">{</span>x[<span class="st">"error"</span>]<span class="sc">:.3f}</span><span class="ss">%'</span>, axis <span class="op">=</span> <span class="dv">1</span>)</span>
+<span id="cb15-345"><a href="#cb15-345" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb15-346"><a href="#cb15-346" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create figure</span></span>
+<span id="cb15-347"><a href="#cb15-347" aria-hidden="true" tabindex="-1"></a>  fig <span class="op">=</span> go.Figure()</span>
+<span id="cb15-348"><a href="#cb15-348" aria-hidden="true" tabindex="-1"></a>  fig.add_trace(go.Scatter(x<span class="op">=</span>x, y<span class="op">=</span>y_norm, text <span class="op">=</span> df[<span class="st">'text_1'</span>].values,</span>
+<span id="cb15-349"><a href="#cb15-349" aria-hidden="true" tabindex="-1"></a>                           mode<span class="op">=</span><span class="st">'lines'</span>, name<span class="op">=</span><span class="st">'Normal'</span>, hoverinfo <span class="op">=</span> <span class="st">'text'</span>,</span>
+<span id="cb15-350"><a href="#cb15-350" aria-hidden="true" tabindex="-1"></a>                           line<span class="op">=</span><span class="bu">dict</span>(color<span class="op">=</span><span class="st">'#FF6666'</span>, width<span class="op">=</span><span class="dv">5</span>)))</span>
+<span id="cb15-351"><a href="#cb15-351" aria-hidden="true" tabindex="-1"></a>  fig.add_trace(go.Scatter(x<span class="op">=</span>x, y<span class="op">=</span>y_binom, text <span class="op">=</span> df[<span class="st">'text_2'</span>].values,</span>
+<span id="cb15-352"><a href="#cb15-352" aria-hidden="true" tabindex="-1"></a>                           mode<span class="op">=</span><span class="st">'markers'</span>, name<span class="op">=</span><span class="st">'Binomial'</span>, hoverinfo <span class="op">=</span> <span class="st">'text'</span>,</span>
+<span id="cb15-353"><a href="#cb15-353" aria-hidden="true" tabindex="-1"></a>                           marker<span class="op">=</span><span class="bu">dict</span>(color<span class="op">=</span><span class="st">'#3399FF'</span>, size<span class="op">=</span><span class="dv">12</span>)))</span>
+<span id="cb15-354"><a href="#cb15-354" aria-hidden="true" tabindex="-1"></a>                           </span>
+<span id="cb15-355"><a href="#cb15-355" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Edit the layout</span></span>
+<span id="cb15-356"><a href="#cb15-356" aria-hidden="true" tabindex="-1"></a>  fig.update_layout(title<span class="op">=</span><span class="ss">f"p = </span><span class="sc">{</span>prob<span class="op">*</span><span class="dv">100</span><span class="sc">:.1f}</span><span class="ss">%, </span><span class="sc">{</span>size<span class="sc">}</span><span class="ss"> trials"</span>,</span>
+<span id="cb15-357"><a href="#cb15-357" aria-hidden="true" tabindex="-1"></a>                    xaxis_title<span class="op">=</span><span class="st">'Observations'</span>,</span>
+<span id="cb15-358"><a href="#cb15-358" aria-hidden="true" tabindex="-1"></a>                    yaxis_title<span class="op">=</span><span class="st">'Probability, %'</span>,</span>
+<span id="cb15-359"><a href="#cb15-359" aria-hidden="true" tabindex="-1"></a>                    template<span class="op">=</span><span class="st">"ggplot2"</span>,</span>
+<span id="cb15-360"><a href="#cb15-360" aria-hidden="true" tabindex="-1"></a>                    hovermode<span class="op">=</span><span class="st">"x unified"</span>)</span>
+<span id="cb15-361"><a href="#cb15-361" aria-hidden="true" tabindex="-1"></a>                   </span>
+<span id="cb15-362"><a href="#cb15-362" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> fig</span>
+<span id="cb15-363"><a href="#cb15-363" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-364"><a href="#cb15-364" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb15-365"><a href="#cb15-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-366"><a href="#cb15-366" aria-hidden="true" tabindex="-1"></a>Next I provide examples using different probabilities.</span>
+<span id="cb15-367"><a href="#cb15-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-368"><a href="#cb15-368" aria-hidden="true" tabindex="-1"></a>::: panel-tabset</span>
+<span id="cb15-369"><a href="#cb15-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-370"><a href="#cb15-370" aria-hidden="true" tabindex="-1"></a><span class="fu">## 30% (R)</span></span>
+<span id="cb15-371"><a href="#cb15-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-374"><a href="#cb15-374" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-375"><a href="#cb15-375" aria-hidden="true" tabindex="-1"></a><span class="co"># return figure</span></span>
+<span id="cb15-376"><a href="#cb15-376" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotDistributions</span>(<span class="fl">0.3</span>, <span class="dv">10</span>)</span>
+<span id="cb15-377"><a href="#cb15-377" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-378"><a href="#cb15-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-379"><a href="#cb15-379" aria-hidden="true" tabindex="-1"></a><span class="fu">## 50% (R)</span></span>
+<span id="cb15-380"><a href="#cb15-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-383"><a href="#cb15-383" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-384"><a href="#cb15-384" aria-hidden="true" tabindex="-1"></a><span class="co"># return figure</span></span>
+<span id="cb15-385"><a href="#cb15-385" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotDistributions</span>(<span class="fl">0.5</span>, <span class="dv">10</span>)</span>
+<span id="cb15-386"><a href="#cb15-386" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-387"><a href="#cb15-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-388"><a href="#cb15-388" aria-hidden="true" tabindex="-1"></a><span class="fu">## 70% (Python)</span></span>
+<span id="cb15-389"><a href="#cb15-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-392"><a href="#cb15-392" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-393"><a href="#cb15-393" aria-hidden="true" tabindex="-1"></a><span class="co"># use python helper function from above</span></span>
+<span id="cb15-394"><a href="#cb15-394" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plot_distributions(<span class="fl">0.7</span>, <span class="dv">10</span>)</span>
+<span id="cb15-395"><a href="#cb15-395" aria-hidden="true" tabindex="-1"></a>fig</span>
+<span id="cb15-396"><a href="#cb15-396" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-397"><a href="#cb15-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-398"><a href="#cb15-398" aria-hidden="true" tabindex="-1"></a><span class="fu">## 5% (Python)</span></span>
+<span id="cb15-399"><a href="#cb15-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-402"><a href="#cb15-402" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-403"><a href="#cb15-403" aria-hidden="true" tabindex="-1"></a><span class="co"># use python helper function from above</span></span>
+<span id="cb15-404"><a href="#cb15-404" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plot_distributions(<span class="fl">0.3</span>, <span class="dv">20</span>)</span>
+<span id="cb15-405"><a href="#cb15-405" aria-hidden="true" tabindex="-1"></a>fig</span>
+<span id="cb15-406"><a href="#cb15-406" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-407"><a href="#cb15-407" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb15-408"><a href="#cb15-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-409"><a href="#cb15-409" aria-hidden="true" tabindex="-1"></a>Let's taken hypothetical model of 1%, i.e. we expect to have 1% manufacturing defects or 1% of clients in our portfolio will fail to meet their credit obligations. For this hypothetical model to meet "Success-Failure" condition we would need to collect at least 1000 observations, i.e. to manufacture 1000 devices or issue credit to 1000 obligatory. Let's compare 3 probabilities calculated using binomial and normal distribution approximation:</span>
+<span id="cb15-410"><a href="#cb15-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-411"><a href="#cb15-411" aria-hidden="true" tabindex="-1"></a>In all 3 cases, we need to calculated expected number of occurrences $n \cdot p$. Let's investigate sample sizes raging from 100 to 2000. </span>
+<span id="cb15-412"><a href="#cb15-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-413"><a href="#cb15-413" aria-hidden="true" tabindex="-1"></a>From the given example, we can ratios between probabilities for all 3 cases.</span>
+<span id="cb15-414"><a href="#cb15-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-415"><a href="#cb15-415" aria-hidden="true" tabindex="-1"></a>::: panel-tabset</span>
+<span id="cb15-416"><a href="#cb15-416" aria-hidden="true" tabindex="-1"></a><span class="fu">## R</span></span>
+<span id="cb15-417"><a href="#cb15-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-420"><a href="#cb15-420" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-421"><a href="#cb15-421" aria-hidden="true" tabindex="-1"></a><span class="co"># create vector with different sample sizes</span></span>
+<span id="cb15-422"><a href="#cb15-422" aria-hidden="true" tabindex="-1"></a>sampleSizes <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">100</span>, <span class="dv">2000</span>, <span class="dv">100</span>)</span>
+<span id="cb15-423"><a href="#cb15-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-424"><a href="#cb15-424" aria-hidden="true" tabindex="-1"></a><span class="co"># create data.table for p = 0.01, i.e. 1%</span></span>
+<span id="cb15-425"><a href="#cb15-425" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">N =</span> sampleSizes, <span class="at">p =</span> <span class="fl">0.02</span>)</span>
+<span id="cb15-426"><a href="#cb15-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-427"><a href="#cb15-427" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate expected number of observations and standard deviation</span></span>
+<span id="cb15-428"><a href="#cb15-428" aria-hidden="true" tabindex="-1"></a>dt[, mu <span class="sc">:</span><span class="er">=</span> N <span class="sc">*</span> p]</span>
+<span id="cb15-429"><a href="#cb15-429" aria-hidden="true" tabindex="-1"></a>dt[, std <span class="sc">:</span><span class="er">=</span> <span class="fu">sqrt</span>(p <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p) <span class="sc">*</span> N)]</span>
+<span id="cb15-430"><a href="#cb15-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-431"><a href="#cb15-431" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate probabilities of observing:</span></span>
+<span id="cb15-432"><a href="#cb15-432" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. less than the expected number of observations</span></span>
+<span id="cb15-433"><a href="#cb15-433" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. exactly the expected number of observations</span></span>
+<span id="cb15-434"><a href="#cb15-434" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. more than the expected number of observations</span></span>
+<span id="cb15-435"><a href="#cb15-435" aria-hidden="true" tabindex="-1"></a>dt[, binom<span class="fl">.1</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">pbinom</span>(mu<span class="dv">-1</span>, <span class="at">size=</span>N, <span class="at">prob=</span>p)]</span>
+<span id="cb15-436"><a href="#cb15-436" aria-hidden="true" tabindex="-1"></a>dt[, binom<span class="fl">.2</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">dbinom</span>(mu, <span class="at">size=</span>N, <span class="at">prob=</span>p)]</span>
+<span id="cb15-437"><a href="#cb15-437" aria-hidden="true" tabindex="-1"></a>dt[, binom<span class="fl">.3</span> <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pbinom</span>(mu, <span class="at">size=</span>N, <span class="at">prob=</span>p)]</span>
+<span id="cb15-438"><a href="#cb15-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-439"><a href="#cb15-439" aria-hidden="true" tabindex="-1"></a><span class="co"># same but for normal distribution</span></span>
+<span id="cb15-440"><a href="#cb15-440" aria-hidden="true" tabindex="-1"></a>dt[, norm<span class="fl">.1</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">pnorm</span>(mu<span class="dv">-1</span>, <span class="at">mean =</span> mu, <span class="at">sd =</span> std)]</span>
+<span id="cb15-441"><a href="#cb15-441" aria-hidden="true" tabindex="-1"></a>dt[, norm<span class="fl">.2</span> <span class="sc">:</span><span class="er">=</span> <span class="fu">pnorm</span>(mu<span class="sc">+</span><span class="dv">1</span>, <span class="at">mean =</span> mu, <span class="at">sd =</span> std) <span class="sc">-</span> <span class="fu">pnorm</span>(mu<span class="dv">-1</span>, <span class="at">mean =</span> mu, <span class="at">sd =</span> std)]</span>
+<span id="cb15-442"><a href="#cb15-442" aria-hidden="true" tabindex="-1"></a>dt[, norm<span class="fl">.3</span> <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(mu<span class="sc">+</span><span class="dv">1</span>, <span class="at">mean =</span> mu, <span class="at">sd =</span> std)]</span>
+<span id="cb15-443"><a href="#cb15-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-444"><a href="#cb15-444" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate errors</span></span>
+<span id="cb15-445"><a href="#cb15-445" aria-hidden="true" tabindex="-1"></a>dt[, error.left <span class="sc">:</span><span class="er">=</span> binom<span class="fl">.1</span><span class="sc">/</span>norm<span class="fl">.1</span>]</span>
+<span id="cb15-446"><a href="#cb15-446" aria-hidden="true" tabindex="-1"></a>dt[, error.right <span class="sc">:</span><span class="er">=</span> binom<span class="fl">.3</span><span class="sc">/</span>norm<span class="fl">.3</span>]</span>
+<span id="cb15-447"><a href="#cb15-447" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-448"><a href="#cb15-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-449"><a href="#cb15-449" aria-hidden="true" tabindex="-1"></a><span class="fu">## Python</span></span>
+<span id="cb15-450"><a href="#cb15-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-453"><a href="#cb15-453" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-454"><a href="#cb15-454" aria-hidden="true" tabindex="-1"></a><span class="co"># load packages for blog post</span></span>
+<span id="cb15-455"><a href="#cb15-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-456"><a href="#cb15-456" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-457"><a href="#cb15-457" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb15-458"><a href="#cb15-458" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-459"><a href="#cb15-459" aria-hidden="true" tabindex="-1"></a><span class="fu">## Independent observations</span></span>
+<span id="cb15-460"><a href="#cb15-460" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-461"><a href="#cb15-461" aria-hidden="true" tabindex="-1"></a><span class="fu">## References</span></span>
+<span id="cb15-462"><a href="#cb15-462" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-463"><a href="#cb15-463" aria-hidden="true" tabindex="-1"></a>Content for this blog post was prepared using following references:</span>
+<span id="cb15-464"><a href="#cb15-464" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-465"><a href="#cb15-465" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://statistics.laerd.com/spss-tutorials/binomial-test-using-spss-statistics.php</span>
+<span id="cb15-466"><a href="#cb15-466" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>http://mlwiki.org/index.php/Binomial_Proportion_Tests</span>
+<span id="cb15-467"><a href="#cb15-467" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://sites.ualberta.ca/\~lkgray/uploads/7/3/6/2/7362679/slides\_-\_binomialproportionaltests.pdf</span>
+<span id="cb15-468"><a href="#cb15-468" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://www.technologynetworks.com/informatics/articles/the-binomial-test-366022</span>
+<span id="cb15-469"><a href="#cb15-469" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://towardsdatascience.com/turning-a-two-sample-event-rate-test-into-a-one-sample-binomial-test-23fbfb9d1df6</span>
+<span id="cb15-470"><a href="#cb15-470" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://www.studysmarter.us/explanations/math/statistics/binomial-hypothesis-test/</span>
+<span id="cb15-471"><a href="#cb15-471" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://www.statology.org/success-failure-condition/</span>
+<span id="cb15-472"><a href="#cb15-472" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://towardsdatascience.com/bernoulli-and-binomial-random-variables-d0698288dd36</span>
+<span id="cb15-473"><a href="#cb15-473" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://ubc-mds.github.io/DSCI_551_stat-prob-dsci/lectures/simulation.html</span>
+<span id="cb15-474"><a href="#cb15-474" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>https://math.stackexchange.com/questions/1978138/probability-of-x-red-balls-when-drawing-y-balls-from-a-red-and-b-green-balls</span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
