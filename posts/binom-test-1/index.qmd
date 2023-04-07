@@ -176,6 +176,7 @@ df['Binomial'] = binom.pmf(df['x'], df['size'], df['p']) * 100
  
 # calculate mean and standard deviation
 df['mu'] = df['size'] * df['p']
+df['se'] = np.sqrt(df['p'] * (1 - df['p']) / df['size'])
 df['std'] = np.sqrt(df['p'] * (1 - df['p']) * df['size'])
 
 # get norm distribution
@@ -224,14 +225,17 @@ for i, _p in enumerate(p):
   dt_plot = df.loc[df['p'] == _p]
   
   # plot binomial and normal distributions
-  ax[i].plot(dt_plot['x'], dt_plot['Error'], "o", color='k');
+  ax[i].plot(dt_plot['x'], dt_plot['Error'], "o", color='k', markersize=3);
   
   # add sub titles
   ax[i].set_title(f"Prob. {_p*100:.0f}% expected {50*_p:.0f} successes and {50*(1-_p):.0f} failures", fontsize=8);
+  
+# adjust limits for better readability
+ax[0].set_ylim(-4.9, 4.9)
 
 # add labels
-ax[1].set_ylabel("Probability, %");
-ax[2].set_xlabel("x");
+ax[1].set_ylabel("Probability, %")
+ax[2].set_xlabel("x")
 
 plt.tight_layout()
 plt.show()
@@ -256,7 +260,7 @@ We have to be mindful, when comparing discrete binomial distribution with a cont
 ```{r}
 PlotDistributions <- function(prob, size){
   # create observation vector
-  x <- 0:size
+  x <- 0:(size*prob*3)
   
   # get probabilities for both binomial and norm distributions
   y.binom <- dbinom(x, size=size, prob=prob) * 100
@@ -310,17 +314,23 @@ PlotDistributions <- function(prob, size){
 # create function for plotting distributions
 def plot_distributions(prob, size):
   # create observation vector
-  x = np.arange(size+1)
+  x = np.arange(int(size*prob*3))
   
   # get probabilities for both binomial and norm distributions
   y_binom = binom.pmf(x, n=size, p=prob) * 100
-  y_norm = norm.pdf(x, loc = size * prob, scale = prob * (1 - prob) * size) * 100
+  
+  # calculate variance and sigma
+  variance = size * prob * (1 - prob)
+  sigma = np.sqrt(variance)
+  
+  y_norm = norm.pdf(x, loc = size * prob, scale = sigma) * 100
   
   # generate Data.Frame
   df = pd.DataFrame({'x': x, 'binom': y_binom, 'norm': y_norm})
   
   # calculate error
   df['error'] = df.binom - df.norm
+  error = df.binom - df.norm
   
   # generate hover messages
   df['text_1'] = df.apply(lambda x: f'Point estimate probability<br>to observer exactly {x["x"]:.0f} events is {x["binom"]:.3f}%', axis = 1)
@@ -335,6 +345,10 @@ def plot_distributions(prob, size):
   fig.add_trace(go.Scatter(x=x, y=y_binom, text = df['text_2'].values,
                            mode='markers', name='Binomial', hoverinfo = 'text',
                            marker=dict(color='#3399FF', size=12)))
+  fig.add_trace(go.Scatter(x=x, y=error, text = df['text_3'].values,
+                           mode='markers', name='Error', hoverinfo = 'text',
+                           marker=dict(color='black', size=12),
+                           visible = "legendonly"))
                            
   # Edit the layout
   fig.update_layout(title=f"p = {prob*100:.1f}%, {size} trials",
@@ -351,33 +365,33 @@ Next I provide examples using different probabilities.
 
 ::: panel-tabset
 
-## 30% (R)
+## 5% (R)
 
 ```{r}
 # return figure
-PlotDistributions(0.3, 10)
+PlotDistributions(0.05, 200)
 ```
 
-## 50% (R)
+## 1% (R)
 
 ```{r}
 # return figure
-PlotDistributions(0.5, 10)
+PlotDistributions(0.01, 500)
 ```
 
-## 70% (Python)
+## 0.5% (Python)
 
 ```{python}
 # use python helper function from above
-fig = plot_distributions(0.7, 10)
+fig = plot_distributions(0.005, 500)
 fig
 ```
 
-## 5% (Python)
+## 0.0=1% (Python)
 
 ```{python}
 # use python helper function from above
-fig = plot_distributions(0.3, 20)
+fig = plot_distributions(0.001, 2000)
 fig
 ```
 :::
