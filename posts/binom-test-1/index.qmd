@@ -5,7 +5,7 @@ format:
   html:
     code-fold: true
     code-tools: true
-date: "2023-03-19"
+date: "2023-04-08"
 draft: false
 categories: [R, Python, Statistics]
 ---
@@ -16,8 +16,8 @@ The binomial test is a statistical test used to determine whether the proportion
 
 As with all statistical tests, the binomial test has assumptions and conditions that must be met before applying it to real-life data:
 
-* The "success-failure" condition requires observing a minimum of **n** successes and **n** failures in the sample;
-* observations are independent, i.e. the occurrence of one event does not affect the probability of occurrence of the other.
+-   The "success-failure" condition requires observing a minimum of **n** successes and **n** failures in the sample;
+-   observations are independent, i.e. the occurrence of one event does not affect the probability of occurrence of the other.
 
 The aim of this blog post is to showcase the ramifications of failing to meet "success-failure" condition critereon. Practical examples are coded in both `R` and `Python` languages.
 
@@ -30,6 +30,7 @@ The aim of this blog post is to showcase the ramifications of failing to meet "s
 library(ggplot2)
 library(plotly)
 library(data.table)
+library(kableExtra)
 ```
 
 ## Python
@@ -57,15 +58,14 @@ $$p = \frac{n_s}{n}$$
 
 , where $n$ - sample size and $n_s$ - the number of successful observations (or it can be the number of failures).
 
-$$SE = \sqrt{\frac{p \cdot (1 - p)}{n}}$$
-, where $SE$ is standard error. To perform a test, one first needs to derive a Null hypothesis:
+$$SE = \sqrt{\frac{p \cdot (1 - p)}{n}}$$ , where $SE$ is standard error. To perform a test, one first needs to derive a Null hypothesis:
 
 $$H_0: p = p_0$$
 
 and an alternative hypothesis:
 
-* one-sided $H_A: p < p_0$ or $H_A: p > p_0$,
-* two-sided $H_A: p \ne p_0$.
+-   one-sided $H_A: p < p_0$ or $H_A: p > p_0$,
+-   two-sided $H_A: p \ne p_0$.
 
 Finally, we needs to calculate $Z$ statistics:
 
@@ -73,9 +73,7 @@ $$Z = \frac{p_0-p}{SE}$$
 
 Obtaining the value of $Z$ enables us to either compute confidence intervals ($CI$) or reject $H_0$ in favor of $H_A$
 
-## “Success-failure” condition
-
-In order to approximate any distribution as normal, the mean ($\mu$) and standard deviation ($\sigma$) must be known/calculated. For the Binomial distribution comprising $n$ experiments and a probability of $p$ normal distribution mean will be located at:
+## "Success-failure" condition
 
 To approximate any distribution as normal, it is imperative to calculate the mean ($\mu$) and standard deviation ($\sigma$). For the Binomial distribution, which consists of a number of experiments $n$ and a probability $p$, the mean of the normal distribution is:
 
@@ -85,7 +83,7 @@ and the standard deviation:
 
 $$\sigma = \sqrt{n \cdot p \cdot (1 - p)}.$$
 
-Meeting the "Success-Failure" condition is crucial to approximate Binomial distribution as Normal. Below, I present an instance of 50 Binomial events with varying probability rates of 5%, 30%, and 90%.
+Meeting the "Success-Failure" condition is crucial to approximate Binomial distribution as Normal. Below, I present an instance of 50 Binomial events with varying probability rates of 5%, 30%, and 90%. In tabs `binomial vs normal` binomial distributions are plotted against it's normal distribution approximation.
 
 ::: panel-tabset
 ## binomial vs. normal (R)
@@ -242,17 +240,11 @@ plt.show()
 ```
 :::
 
-The first thing to notice is that the "Success-Failure" criterion is only met for the p=30% case. In tabs `error` one can see that approximation error, i.e. the difference between Binomial probability and Normal distribution approximations, is above 2% for the $p=5\%$ and $p=90\%$ examples.
+The first thing to notice is that the "Success-Failure" criterion is only met for the p=30% case. In tabs `error` one can see that approximation error, i.e. the difference between probabilities calculated using Binomial and Normal distribution approximations, is above 2% for the $p=5\%$ and $p=90\%$ examples.
 
 ## Estimating approximation error
 
-There are a different way to calculate approximation error dependence on sample size. Let's establish 3 types of probabilities:
-
-* $p_1$ we would observe more than expected number of occurrences,
-* $p_2$ we would observe expected number of occurrences,
-* $p_3$ we would observe less than expected number of occurrences.
-
-We have to be mindful, when comparing discrete binomial distribution with a continuous normal distribution. In examples bellow, we can compare areas under the curve for both distributions using interactive charts by `plotly` library/package. First I create a function to visualize both pint cand cumulative probabilities using interactive charts.
+Let's dive deeper into understanding approximation error. We have to be mindful, when comparing discrete binomial distribution with a continuous normal distribution. The binomial distribution probability spaces bounded between 0 and `k` events, where `k` number of attempts while for normal it's mathematical y unbounded (for large `Z` values you can calculate very small probability values). Apart for case $p=50\%$ binomial distribution is not symmetrical as oppose to normal distribution. In examples bellow, we will compare areas under the curve for both distributions using interactive charts by `plotly` library/package. First I have created a functions which visualizes both distributions using interactive charts.
 
 ::: panel-tabset
 ## plot_ly function (R)
@@ -260,7 +252,11 @@ We have to be mindful, when comparing discrete binomial distribution with a cont
 ```{r}
 PlotDistributions <- function(prob, size){
   # create observation vector
-  x <- 0:(size*prob*3)
+  if (prob < 0.5){
+    x <- 0:(size*prob*3)
+  } else {
+    x <- (size - 3 * size * (1 - prob)):size
+  }
   
   # get probabilities for both binomial and norm distributions
   y.binom <- dbinom(x, size=size, prob=prob) * 100
@@ -361,88 +357,217 @@ def plot_distributions(prob, size):
 ```
 :::
 
-Next I provide examples using different probabilities.
+Next I provide examples using small probabilities (99%, 95%, 0.5% and 0.1%) where "Success-failure" condition is not met, i.e. either 5 failures or 5 successes are expected for all 4 examples.
 
 ::: panel-tabset
-
-## 5% (R)
+## 99.9% (R)
 
 ```{r}
 # return figure
-PlotDistributions(0.05, 200)
+PlotDistributions(0.999, 5000)
 ```
 
-## 1% (R)
+## 99.5% (R)
 
 ```{r}
 # return figure
-PlotDistributions(0.01, 500)
+PlotDistributions(0.995, 1000)
 ```
 
 ## 0.5% (Python)
 
 ```{python}
 # use python helper function from above
-fig = plot_distributions(0.005, 500)
+fig = plot_distributions(0.005, 1000)
 fig
 ```
 
-## 0.0=1% (Python)
+## 0.01% (Python)
 
 ```{python}
 # use python helper function from above
-fig = plot_distributions(0.001, 2000)
+fig = plot_distributions(0.001, 5000)
 fig
 ```
 :::
 
-Let's taken hypothetical model of 1%, i.e. we expect to have 1% manufacturing defects or 1% of clients in our portfolio will fail to meet their credit obligations. For this hypothetical model to meet "Success-Failure" condition we would need to collect at least 1000 observations, i.e. to manufacture 1000 devices or issue credit to 1000 obligatory. Let's compare 3 probabilities calculated using binomial and normal distribution approximation:
+Let's taken hypothetical model with small probability, i.e. we expect to have 1% manufacturing defects or 1% of clients in our portfolio will fail to meet their credit obligations. For this hypothetical model to meet "Success-Failure" condition we would need to collect at least 1000 observations, i.e. to manufacture 1000 devices or issue credit to 1000 obligatory. In the tab `1% (R)` that if this condition is not met, i.e. we collected 500 events and expect 5 failures/defaults. From both visual inspection and reviewing error estimates for different outcomes (select `error` on legend to view error values) it's clear that normal distribution approximation overestimates probability for $\ge5$ and underestimates $\le5$. For all 4 examples, expected number of "Successes-failures" is 5. One can observed that the smaller the probability is the larger the error becomes.
 
-In all 3 cases, we need to calculated expected number of occurrences $n \cdot p$. Let's investigate sample sizes raging from 100 to 2000. 
+Let's compare 3 probabilities calculated using binomial and normal distribution approximation:
 
-From the given example, we can ratios between probabilities for all 3 cases.
+-   $p_1$ we would observe more than expected number of occurrences,
+-   $p_2$ we would observe expected number of occurrences,
+-   $p_3$ we would observe less than expected number of occurrences.
 
-::: panel-tabset
-## R
+We can calculate these probabilities using both binomial and normal distributions and then compare them, e.g. $ratio_1 = \frac{p_1 (binom.)}{p_1 (norm.)}$. $p_1$ probabilities and all 3 ratios are calculated for all 4 examples above and few more examples. For all cases we have 5 expected successes or failures. Results are presented in table bellow.
 
 ```{r}
-# create vector with different sample sizes
-sampleSizes <- seq(100, 2000, 100)
+# generate data.table
+dt <- data.table(p = c(0.999, 0.995, 0.99, 0.95, 0.8,
+                       0.5,
+                       0.2, 0.05, 0.01, 0.005, 0.001),
+                 N = c(5000, 1000, 500, 100, 25,
+                       10,
+                       25, 100, 500, 1000, 5000))
+# expected events
+dt[, x := p * N]
 
-# create data.table for p = 0.01, i.e. 1%
-dt <- data.table(N = sampleSizes, p = 0.02)
+# get binomial, normal probabilities and their ratio
+dt[, binom.p1 := dbinom(x, size=N, prob=p) * 100]
+dt[, norm.p1 := dnorm(x, mean=N * p, sd = sqrt(p * (1 - p) * N)) * 100]
+dt[, ratio.1 := binom.p1/norm.p1 * 100]
 
-# calculate expected number of observations and standard deviation
-dt[, mu := N * p]
-dt[, std := sqrt(p * (1 - p) * N)]
+# calculate p2 probabilities
+dt[, binom.p2 := pbinom(x-1, size=N, prob=p) * 100]
+dt[, norm.p2 := (1-dnorm(x, mean=N * p, sd = sqrt(p * (1 - p) * N)))/2 * 100]
 
-# calculate probabilities of observing:
-# 1. less than the expected number of observations
-# 2. exactly the expected number of observations
-# 3. more than the expected number of observations
-dt[, binom.1 := pbinom(mu-1, size=N, prob=p)]
-dt[, binom.2 := dbinom(mu, size=N, prob=p)]
-dt[, binom.3 := 1 - pbinom(mu, size=N, prob=p)]
+# calculate p3 probabilities
+dt[, binom.p3 := (1 - pbinom(x, size=N, prob=p)) * 100]
 
-# same but for normal distribution
-dt[, norm.1 := pnorm(mu-1, mean = mu, sd = std)]
-dt[, norm.2 := pnorm(mu+1, mean = mu, sd = std) - pnorm(mu-1, mean = mu, sd = std)]
-dt[, norm.3 := 1 - pnorm(mu+1, mean = mu, sd = std)]
+# calculate ratios
+dt[, ratio.2 := binom.p2/norm.p2 * 100]
+dt[, ratio.3 := binom.p3/norm.p2 * 100]
 
-# calculate errors
-dt[, error.left := binom.1/norm.1]
-dt[, error.right := binom.3/norm.3]
+# round columns for better readability
+cols <- names(dt)[4:11]
+dt[,(cols) := round(.SD, 3), .SDcols=cols]
+
+# convert probability to percents
+dt[, p := round(p * 100, 1)]
+
+# remove column
+dt$x <- NULL
+
+# generate table with first few rows and columns
+knitr::kable(dt[, c(1:5, 9, 10)], col.names = c("p, %", "N", "p_1 (binom.), %", "p_1 (norm.), %", "ratio_1", "ratio_2", "ratio_3")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
-## Python
+There results show that when $p > 50\%$ overestimation is observed on the right side of distribution nd opposite is true for $p < 50\%$. The ratio between $p_1$ probabilities is the same across all 3 examples. This is due to the fact that all 3 cases have 5 expected success/failures. Overestimation $ratio_2$ are the same for $p > 50\%$ cases as underestimation $ratio_3$. As implied probability becomes closer to 50% the binomial distribution becomes more symmetrical which can be supported by seeing that $ratio_2$ and $ratio_3$ are close to 100% for given example.
 
-```{python}
-# load packages for blog post
+Finally let's compare cumulative probabilities for example with $p=10%$ and 50 observations. I have also added 95% and 99% confidence intervals, i.e. Z and Z=.
 
+::: panel-tabset
+## 0.1%
+
+```{r}
+# helper function for plotting
+vline <- function(x = 0, color = "black") {
+  list(
+    type = "line",
+    y0 = 0,
+    y1 = 1,
+    yref = "paper",
+    x0 = x,
+    x1 = x,
+    line = list(color = color, dash = "dot")
+  )
+}
+
+# helper function to draw cum. probabilities
+PlotCumProbs <- function(p, N){
+  
+  # create vector
+  x <- 0:(N*p*3)
+  
+  # calculate z values as events for different confidence intervals
+  Z.95 <- (N * p + 1.960 * sqrt(p * (1 - p) * N))
+  Z.99 <- (N * p + 2.576 * sqrt(p * (1 - p) * N))
+  
+  # calculate cum. probabilities for both binomial and normal distributions
+  y.binom <- pbinom(x, size=N, prob=p) * 100
+  y.norm <- pnorm(x, mean=N * p, sd = sqrt(p * (1 - p) * N)) * 100
+  
+  # create data.table for plotting
+  dt <- data.table(x = x, y.binom = y.binom, y.norm = y.norm)
+  # calculate error
+  dt[, error := y.binom - y.norm]
+  
+  # add hover text messages
+  dt[, text.1 := paste0(round(y.binom, 3), "%")]
+  dt[, text.2 := paste0(round(y.norm, 3), "%")]
+  dt[, text.3 := paste0(round(error, 3), "%")]
+  
+  # create figure
+  fig <- plot_ly(data = dt, type = 'scatter', mode = 'lines')
+  
+  # add traces
+  fig <- fig %>% add_trace(x = ~x, y = ~y.norm, text = ~text.1,
+                           name = 'Normal',mode = 'lines',
+                           hoverinfo = 'text',
+                           line = list(color = "#FF6666", width = 5))
+  fig <- fig %>% add_trace(x = ~x, y = ~y.binom, text = ~text.2,
+                           name = 'Binomial',mode = 'markers',
+                           hoverinfo = 'text',
+                           marker = list(color = "#3399FF", size = 12))
+  fig <- fig %>% add_trace(x = ~x, y = ~error, text = ~text.3,
+                           name = 'Error',mode = 'lines+markers',
+                           hoverinfo = 'text',
+                           line = list(color = "black", width = 5),
+                           marker = list(color = "black", size = 12))
+  
+  # update layout
+  fig <- fig %>% layout(title = paste0("p = ", round(p*100), "%, ", N, " trials"),
+                        xaxis = list(title = "Observations"),
+                        yaxis = list (title = "Probability, %"),
+                        hovermode = "x unified",
+                        shapes = list(vline(Z.95), vline(Z.99)),
+                        legend=list(title=list(text='<b> Distributions </b>')))
+  
+  # return figure object
+  return(fig)
+}
+
+# plot example for 0.1%
+PlotCumProbs(0.001, 5000)
+```
+
+## 1%
+
+```{r}
+# plot example for 1%
+PlotCumProbs(0.01, 500)
+```
+
+## 10%
+
+```{r}
+# plot example for 10%
+PlotCumProbs(0.1, 50)
+```
+
+## 20%
+
+```{r}
+# plot example for 10%
+PlotCumProbs(0.2, 25)
+```
+
+## 50%
+
+```{r}
+# plot example for 10%
+PlotCumProbs(0.5, 10)
 ```
 :::
 
-## Independent observations
+When running statistical tests, probabilities calculated at large Z values will be very similiar to both m 
+
+## Min. sample size
+
+Finally let's investigate for different probabilities how much $p_1$ and $ratio_1$ are affected as sample size is increased.
+
+Now let's investigate how these probabilities and errors change as sample size is increased and "success-failure" condition is met.
+
+```{r}
+# generate data.table
+
+```
+
+## Conclusions
+
+One should be very mindful when designing experiments for one-sample binomial test. Failing to meet "success-failure" condition would result in overestimation or underestimation of you $H_0$ hypothesis results.
+
 
 ## References
 
