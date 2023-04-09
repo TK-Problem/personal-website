@@ -5,7 +5,7 @@ format:
   html:
     code-fold: true
     code-tools: true
-date: "2023-04-08"
+date: "2023-04-XX"
 draft: false
 categories: [R, Python, Statistics]
 ---
@@ -445,10 +445,10 @@ knitr::kable(dt[, c(1:5, 9, 10)], col.names = c("p, %", "N", "p_1 (binom.), %", 
 
 There results show that when $p > 50\%$ overestimation is observed on the right side of distribution nd opposite is true for $p < 50\%$. The ratio between $p_1$ probabilities is the same across all 3 examples. This is due to the fact that all 3 cases have 5 expected success/failures. Overestimation $ratio_2$ are the same for $p > 50\%$ cases as underestimation $ratio_3$. As implied probability becomes closer to 50% the binomial distribution becomes more symmetrical which can be supported by seeing that $ratio_2$ and $ratio_3$ are close to 100% for given example.
 
-Finally let's compare cumulative probabilities for example with $p=10%$ and 50 observations. I have also added 95% and 99% confidence intervals, i.e. Z and Z=.
+Finally let's compare cumulative probabilities for different examples of probabilities $p$ and expected values (EV). I have added 95% (black dashed line) and 99% (red dashed line) confidence intervals to show when one can start rejecting null hypothesis using commonly used cut-off levels.
 
 ::: panel-tabset
-## 0.1%
+## 0.1% (5 EV)
 
 ```{r}
 # helper function for plotting
@@ -467,12 +467,21 @@ vline <- function(x = 0, color = "black") {
 # helper function to draw cum. probabilities
 PlotCumProbs <- function(p, N){
   
-  # create vector
-  x <- 0:(N*p*3)
+  # for adjusting plot x limits
+  x.ratio <- p*N 
+  
+  # create vector depending on probability
+  if (p <= 0.5){
+    x <- 0:max((N*p*3), N*p)
+  } else {
+    x <- max((N - 3 * N * (1 - p)), 0):N
+  }
   
   # calculate z values as events for different confidence intervals
-  Z.95 <- (N * p + 1.960 * sqrt(p * (1 - p) * N))
-  Z.99 <- (N * p + 2.576 * sqrt(p * (1 - p) * N))
+  Z.95.left <- (N * p - 1.960 * sqrt(p * (1 - p) * N))
+  Z.99.left <- (N * p - 2.576 * sqrt(p * (1 - p) * N))
+  Z.95.right <- (N * p + 1.960 * sqrt(p * (1 - p) * N))
+  Z.99.right <- (N * p + 2.576 * sqrt(p * (1 - p) * N))
   
   # calculate cum. probabilities for both binomial and normal distributions
   y.binom <- pbinom(x, size=N, prob=p) * 100
@@ -507,11 +516,11 @@ PlotCumProbs <- function(p, N){
                            marker = list(color = "black", size = 12))
   
   # update layout
-  fig <- fig %>% layout(title = paste0("p = ", round(p*100), "%, ", N, " trials"),
+  fig <- fig %>% layout(title = paste0("p = ", round(p*100, 1), "%, ", N, " trials"),
                         xaxis = list(title = "Observations"),
                         yaxis = list (title = "Probability, %"),
                         hovermode = "x unified",
-                        shapes = list(vline(Z.95), vline(Z.99)),
+                        shapes = list(vline(Z.99.left, color='red'), vline(Z.95.left), vline(Z.95.right), vline(Z.99.right, color='red')),
                         legend=list(title=list(text='<b> Distributions </b>')))
   
   # return figure object
@@ -522,36 +531,78 @@ PlotCumProbs <- function(p, N){
 PlotCumProbs(0.001, 5000)
 ```
 
-## 1%
+## 10% (5 EV)
 
 ```{r}
 # plot example for 1%
 PlotCumProbs(0.01, 500)
 ```
 
-## 10%
+## 10% (10 EV)
 
 ```{r}
 # plot example for 10%
-PlotCumProbs(0.1, 50)
+PlotCumProbs(0.1, 100)
 ```
 
-## 20%
+## 20% (15 EV)
 
 ```{r}
-# plot example for 10%
-PlotCumProbs(0.2, 25)
+# plot example for 20%
+PlotCumProbs(0.2, 75)
 ```
 
-## 50%
+## 50% (5 EV)
 
 ```{r}
-# plot example for 10%
+# plot example for 50%
 PlotCumProbs(0.5, 10)
+```
+
+## 50% (10 EV)
+
+```{r}
+# plot example for 50%
+PlotCumProbs(0.5, 20)
+```
+
+## 50% (15 EV)
+
+```{r}
+# plot example for 50%
+PlotCumProbs(0.5, 30)
+```
+
+## 80% (15 EV)
+
+```{r}
+# plot example for 80%
+PlotCumProbs(0.8, 75)
+```
+
+## 90% (10 EV)
+
+```{r}
+# plot example for 90%
+PlotCumProbs(0.9, 100)
+```
+
+## 99% (5 EV)
+
+```{r}
+# plot example for 99%
+PlotCumProbs(0.99, 500)
+```
+
+## 99.9% (5 EV)
+
+```{r}
+# plot example for 99.9%
+PlotCumProbs(0.999, 5000)
 ```
 :::
 
-When running statistical tests, probabilities calculated at large Z values will be very similiar to both m 
+The first thing to notice, that 2-sided hypothesis can't be really tested for low EV example, see tabs with (5 EV) in their name - the red dashed lines are outside of viable outcome range with an exception of 50% (5EV). For this example, after 10 attempts rejecting Null hypothesis $H_0 \ne p$ with 99% CI is possible by observing 0 or 10 successes. AS sample size increases, i.e. larger EV, distribution widths are reduced, which means that 2-sided tests with 99% CI become viable, see example with (EV 15). Again, when comparing distributions with same EV but different probabilities, we see that error between binomial distribution and it's approximation using normal distribution is very similar.
 
 ## Min. sample size
 
