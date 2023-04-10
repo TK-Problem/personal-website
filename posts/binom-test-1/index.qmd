@@ -611,9 +611,38 @@ Finally let's investigate for different probabilities how much $p_1$ and $ratio_
 Now let's investigate how these probabilities and errors change as sample size is increased and "success-failure" condition is met.
 
 ```{r}
-# generate data.table
+# generate data.table with expected values and sample probabilities
+dt <- CJ(Sucesses = c(1:20), p = c(0.001, 0.01, 0.1, 0.2, 0.4, 0.5))
 
+# get probability and sample size for expected values
+dt[p <= 0.5, N := Sucesses / p]
+dt[p > 0.5, N := Sucesses / (1 - p)]
+
+# get number of failures
+dt[, Failures := N - Sucesses]
+
+# calculate probabilities to observe expected number of observations 
+dt[p <= 0.5, binom.p1 := dbinom(Sucesses, size=N, prob=p) * 100]
+dt[p > 0.5, binom.p1 := dbinom(Failures, size=N, prob=p) * 100]
+dt[p <= 0.5, norm.p1 := dnorm(Sucesses, mean=N * p, sd = sqrt(p * (1 - p) * N)) * 100]
+dt[p > 0.5, norm.p1 := dnorm(Failures, mean=N * p, sd = sqrt(p * (1 - p) * N)) * 100]
+
+# get ratio between estimates
+dt[, ratio.1 := binom.p1/norm.p1 * 100]
+
+# for coloring get probability
+dt[, Probability := paste0(round(p * 100, 1), "%")]
+
+fig <- plot_ly(dt, x = ~Sucesses, y = ~ratio.1, color = ~Probability) 
+fig <- fig %>% add_lines()
+
+# with log scales
+fig <- layout(fig, yaxis = list(type = "log"))
+
+fig
 ```
+
+The accuracy of approximating binomial distribution with binomial mostly depends on sample size, i.e. expected number of successes/failures.
 
 ## Conclusions
 
