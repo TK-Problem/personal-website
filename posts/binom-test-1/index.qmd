@@ -31,6 +31,7 @@ library(ggplot2)
 library(plotly)
 library(data.table)
 library(kableExtra)
+library(RColorBrewer) # for generating color palettes
 ```
 
 ## Python
@@ -610,9 +611,13 @@ Finally let's investigate for different probabilities how much $p_1$ and $ratio_
 
 Now let's investigate how these probabilities and errors change as sample size is increased and "success-failure" condition is met.
 
+::: panel-tabset
+## Ratio 1
+
 ```{r}
 # generate data.table with expected values and sample probabilities
-dt <- CJ(Sucesses = c(1:20), p = c(0.001, 0.01, 0.1, 0.2, 0.4, 0.5))
+probs <- c(0.001, 0.01, 0.1, 0.2, 0.4, 0.5, 0.6, 0.8, 0.9, 0.99, 0.999)
+dt <- CJ(Sucesses = c(1:16), p = probs)
 
 # get probability and sample size for expected values
 dt[p <= 0.5, N := Sucesses / p]
@@ -627,20 +632,87 @@ dt[p > 0.5, binom.p1 := dbinom(Failures, size=N, prob=p) * 100]
 dt[p <= 0.5, norm.p1 := dnorm(Sucesses, mean=N * p, sd = sqrt(p * (1 - p) * N)) * 100]
 dt[p > 0.5, norm.p1 := dnorm(Failures, mean=N * p, sd = sqrt(p * (1 - p) * N)) * 100]
 
-# get ratio between estimates
-dt[, ratio.1 := binom.p1/norm.p1 * 100]
+# calculate p2 probabilities
+dt[p <= 0.5, binom.p2 := pbinom(Sucesses, size=N, prob=p) * 100]
+dt[p <= 0.5, norm.p2 := (1-dnorm(Sucesses, mean=N * p, sd = sqrt(p * (1 - p) * N)))/2 * 100]
+dt[p > 0.5, binom.p2 := pbinom(Failures, size=N, prob=p) * 100]
+dt[p > 0.5, norm.p2 := (1-dnorm(Failures, mean=N * p, sd = sqrt(p * (1 - p) * N)))/2 * 100]
+
+# calculate p3 probabilities
+dt[p <= 0.5, binom.p3 := (1 - pbinom(Sucesses, size=N, prob=p)) * 100]
+
+# get ratios between estimates
+dt[, ratio.1 := round(binom.p1/norm.p1 * 100, 3)]
+dt[, ratio.2 := round(binom.p2/norm.p2 * 100, 3)]
+dt[, ratio.3 := round(binom.p3/norm.p2 * 100, 3)]
 
 # for coloring get probability
 dt[, Probability := paste0(round(p * 100, 1), "%")]
 
-fig <- plot_ly(dt, x = ~Sucesses, y = ~ratio.1, color = ~Probability) 
+# generate figure
+fig <- plot_ly(dt,
+               x = ~Sucesses,
+               y = ~ratio.1,
+               color = ~Probability,
+               colors = brewer.pal(length(probs), "BrBG"),
+               line = list(width = 4)) 
 fig <- fig %>% add_lines()
 
 # with log scales
-fig <- layout(fig, yaxis = list(type = "log"))
+fig <- layout(fig,
+              hovermode = "x unified",
+              yaxis = list(type = "log", title = "Ratio 1, %"),
+              xaxis = list(title = "Expected sucessess/failures"),
+              legend=list(title=list(text='<b> Probabilities </b>')))
 
 fig
 ```
+
+## Ratio 2
+
+```{r}
+# generate figure
+fig <- plot_ly(dt,
+               x = ~Sucesses,
+               y = ~ratio.2,
+               color = ~Probability,
+               colors = brewer.pal(length(probs), "BrBG"),
+               line = list(width = 4)) 
+fig <- fig %>% add_lines()
+
+# with log scales
+fig <- layout(fig,
+              hovermode = "x unified",
+              yaxis = list(type = "log", title = "Ratio 2, %"),
+              xaxis = list(title = "Expected sucessess/failures"),
+              legend=list(title=list(text='<b> Probabilities </b>')))
+
+fig
+```
+
+## Ratio 3
+
+```{r}
+# generate figure
+fig <- plot_ly(dt,
+               x = ~Sucesses,
+               y = ~ratio.3,
+               color = ~Probability,
+               colors = brewer.pal(length(probs), "BrBG"),
+               line = list(width = 4)) 
+fig <- fig %>% add_lines()
+
+# with log scales
+fig <- layout(fig,
+              hovermode = "x unified",
+              yaxis = list(type = "log", title = "Ratio 3, %"),
+              xaxis = list(title = "Expected sucessess/failures"),
+              legend=list(title=list(text='<b> Probabilities </b>')))
+
+fig
+```
+
+:::
 
 The accuracy of approximating binomial distribution with binomial mostly depends on sample size, i.e. expected number of successes/failures.
 
