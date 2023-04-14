@@ -402,6 +402,10 @@ Let's compare 3 probabilities calculated using binomial and normal distribution 
 
 We can calculate these probabilities using both binomial and normal distributions and then compare them, e.g. $ratio_1 = \frac{p_1 (binom.)}{p_1 (norm.)}$. $p_1$ probabilities and all 3 ratios are calculated for all 4 examples above and few more examples. For all cases we have 5 expected successes or failures. Results are presented in table bellow.
 
+
+::: panel-tabset
+
+## Table
 ```{r}
 # generate data.table
 dt <- data.table(p = c(0.999, 0.995, 0.99, 0.95, 0.8,
@@ -444,6 +448,12 @@ knitr::kable(dt[, c(1:5, 9, 10)], col.names = c("p, %", "N", "p_1 (binom.), %", 
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
+## Ratios
+```{r}
+
+```
+
+:::
 There results show that when $p > 50\%$ overestimation is observed on the right side of distribution nd opposite is true for $p < 50\%$. The ratio between $p_1$ probabilities is the same across all 3 examples. This is due to the fact that all 3 cases have 5 expected success/failures. Overestimation $ratio_2$ are the same for $p > 50\%$ cases as underestimation $ratio_3$. As implied probability becomes closer to 50% the binomial distribution becomes more symmetrical which can be supported by seeing that $ratio_2$ and $ratio_3$ are close to 100% for given example.
 
 Finally let's compare cumulative probabilities for different examples of probabilities $p$ and expected values (EV). I have added 95% (black dashed line) and 99% (red dashed line) confidence intervals to show when one can start rejecting null hypothesis using commonly used cut-off levels.
@@ -616,45 +626,46 @@ Now let's investigate how these probabilities and errors change as sample size i
 
 ```{r}
 # generate data.table with expected values and sample probabilities
-probs <- c(0.001, 0.01, 0.1, 0.2, 0.4, 0.5, 0.6, 0.8, 0.9, 0.99, 0.999)
-dt <- CJ(Sucesses = c(1:16), p = probs)
+probs <- c(0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9, 0.99, 0.999)
+dt <- CJ(Sucesses = c(1:50), p = probs)
 
 # get probability and sample size for expected values
-dt[p <= 0.5, N := Sucesses / p]
-dt[p > 0.5, N := Sucesses / (1 - p)]
+dt[p <= 0.5, N := ceiling(Sucesses / p)]
+dt[p > 0.5, N := ceiling(Sucesses / (1 - p))]
 
 # get number of failures
 dt[, Failures := N - Sucesses]
 
 # calculate probabilities to observe expected number of observations 
-dt[p <= 0.5, binom.p1 := dbinom(Sucesses, size=N, prob=p) * 100]
-dt[p > 0.5, binom.p1 := dbinom(Failures, size=N, prob=p) * 100]
-dt[p <= 0.5, norm.p1 := dnorm(Sucesses, mean=N * p, sd = sqrt(p * (1 - p) * N)) * 100]
-dt[p > 0.5, norm.p1 := dnorm(Failures, mean=N * p, sd = sqrt(p * (1 - p) * N)) * 100]
+dt[p <= 0.5, binom.p1 := dbinom(Sucesses, size = N, prob=p) * 100]
+dt[p > 0.5, binom.p1 := dbinom(Failures, size = N, prob=p) * 100]
+dt[p <= 0.5, norm.p1 := dnorm(Sucesses, mean = N * p, sd = sqrt(p * (1 - p) * N)) * 100]
+dt[p > 0.5, norm.p1 := dnorm(Failures, mean = N * p, sd = sqrt(p * (1 - p) * N)) * 100]
 
-# calculate p2 probabilities
-dt[p <= 0.5, binom.p2 := pbinom(Sucesses, size=N, prob=p) * 100]
-dt[p <= 0.5, norm.p2 := (1-dnorm(Sucesses, mean=N * p, sd = sqrt(p * (1 - p) * N)))/2 * 100]
-dt[p > 0.5, binom.p2 := pbinom(Failures, size=N, prob=p) * 100]
-dt[p > 0.5, norm.p2 := (1-dnorm(Failures, mean=N * p, sd = sqrt(p * (1 - p) * N)))/2 * 100]
-
-# calculate p3 probabilities
-dt[p <= 0.5, binom.p3 := (1 - pbinom(Sucesses, size=N, prob=p)) * 100]
-
-# get ratios between estimates
+# get ratio between point estimates
 dt[, ratio.1 := round(binom.p1/norm.p1 * 100, 3)]
-dt[, ratio.2 := round(binom.p2/norm.p2 * 100, 3)]
-dt[, ratio.3 := round(binom.p3/norm.p2 * 100, 3)]
 
 # for coloring get probability
 dt[, Probability := paste0(round(p * 100, 1), "%")]
+
+# text message for hover
+dt[, text := paste0(Probability, " with ", N, " attempts: ", ratio.1)]
+
+# generate color palette
+# code example taken from
+# https://stackoverflow.com/questions/15282580/how-to-generate-a-number-of-most-distinctive-colors-in-r
+n <- length(probs)
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
 
 # generate figure
 fig <- plot_ly(dt,
                x = ~Sucesses,
                y = ~ratio.1,
                color = ~Probability,
-               colors = brewer.pal(length(probs), "BrBG"),
+               colors = col_vector,
+               text = ~text,
+               hoverinfo = "text",
                line = list(width = 4)) 
 fig <- fig %>% add_lines()
 
@@ -668,48 +679,10 @@ fig <- layout(fig,
 fig
 ```
 
-## Ratio 2
+## Approximation error
 
 ```{r}
-# generate figure
-fig <- plot_ly(dt,
-               x = ~Sucesses,
-               y = ~ratio.2,
-               color = ~Probability,
-               colors = brewer.pal(length(probs), "BrBG"),
-               line = list(width = 4)) 
-fig <- fig %>% add_lines()
 
-# with log scales
-fig <- layout(fig,
-              hovermode = "x unified",
-              yaxis = list(type = "log", title = "Ratio 2, %"),
-              xaxis = list(title = "Expected sucessess/failures"),
-              legend=list(title=list(text='<b> Probabilities </b>')))
-
-fig
-```
-
-## Ratio 3
-
-```{r}
-# generate figure
-fig <- plot_ly(dt,
-               x = ~Sucesses,
-               y = ~ratio.3,
-               color = ~Probability,
-               colors = brewer.pal(length(probs), "BrBG"),
-               line = list(width = 4)) 
-fig <- fig %>% add_lines()
-
-# with log scales
-fig <- layout(fig,
-              hovermode = "x unified",
-              yaxis = list(type = "log", title = "Ratio 3, %"),
-              xaxis = list(title = "Expected sucessess/failures"),
-              legend=list(title=list(text='<b> Probabilities </b>')))
-
-fig
 ```
 
 :::
