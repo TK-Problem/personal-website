@@ -402,10 +402,6 @@ Let's compare 3 probabilities calculated using binomial and normal distribution 
 
 We can calculate these probabilities using both binomial and normal distributions and then compare them, e.g. $ratio_1 = \frac{p_1 (binom.)}{p_1 (norm.)}$. $p_1$ probabilities and all 3 ratios are calculated for all 4 examples above and few more examples. For all cases we have 5 expected successes or failures. Results are presented in table bellow.
 
-
-::: panel-tabset
-
-## Table
 ```{r}
 # generate data.table
 dt <- data.table(p = c(0.999, 0.995, 0.99, 0.95, 0.8,
@@ -444,17 +440,53 @@ dt[, p := round(p * 100, 1)]
 dt$x <- NULL
 
 # generate table with first few rows and columns
-knitr::kable(dt[, c(1:5, 9, 10)], col.names = c("p, %", "N", "p_1 (binom.), %", "p_1 (norm.), %", "ratio_1", "ratio_2", "ratio_3")) %>%
+knitr::kable(dt[, c(1:5, 9, 10)], col.names = c("p, %", "N", "p1 (binom.), %", "p1 (norm.), %", "ratio 1", "ratio 2", "ratio 3")) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
-## Ratios
-```{r}
+There results show that when $p > 50\%$ overestimation is observed on the right side of distribution nd opposite is true for $p < 50\%$. The ratio between $p_1$ probabilities is the same across all 3 examples. This is due to the fact that all 3 cases have 5 expected success/failures. Overestimation $ratio_2$ are the same for $p > 50\%$ cases as underestimation $ratio_3$. As implied probability becomes closer to 50% the binomial distribution becomes more symmetrical which can be supported by seeing that $ratio_2$ and $ratio_3$ are close to 100% for given example.
 
+Another way to measure approximation error is to calculate total absolute approximation error (binomial minus normal). The reason why one needs to use total is that mean absolute error would be effected by very small errors at the edge of distributions. The main idea is that by increasing number of observations (expected number of success/failures) total error between point estimates will get reduced. As with previous example, total approximation error is calculated for different PDs with 5 expected successes/failures.
+
+```{r}
+# generate data.table
+dt <- data.table(p = c(0.999, 0.995, 0.99, 0.95, 0.8,
+                       0.5,
+                       0.2, 0.05, 0.01, 0.005, 0.001),
+                 N = c(5000, 1000, 500, 100, 25,
+                       10,
+                       25, 100, 500, 1000, 5000))
+# expected events
+dt[, x := p * N]
+
+# ugly, but quick way to calculate approximation error
+for (p.tmp in dt$p){
+  # generate vector
+  x.vect <- 0:dt[p == p.tmp, N]
+  
+  # get probabilities for both binomial and norm distributions
+  y.binom <- dbinom(x.vect, dt[p == p.tmp, N], p.tmp)
+  y.norm <- dnorm(x.vect, mean=dt[p == p.tmp, N] * p.tmp, sd = sqrt(p.tmp * (1 - p.tmp) * dt[p == p.tmp, N]))
+  
+  # sum absolute error
+  y.err <- sum(abs(y.binom - y.norm))
+  
+  # add error term
+  dt[p == p.tmp, tot.abs.error := round(y.err*100, 3)]
+}
+
+# convert probability to percents
+dt[, p := round(p * 100, 1)]
+
+# remove column
+dt$x <- NULL
+
+# generate table with first few rows and columns
+knitr::kable(dt, col.names = c("p, %", "N", "Total absolute error, %")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
-:::
-There results show that when $p > 50\%$ overestimation is observed on the right side of distribution nd opposite is true for $p < 50\%$. The ratio between $p_1$ probabilities is the same across all 3 examples. This is due to the fact that all 3 cases have 5 expected success/failures. Overestimation $ratio_2$ are the same for $p > 50\%$ cases as underestimation $ratio_3$. As implied probability becomes closer to 50% the binomial distribution becomes more symmetrical which can be supported by seeing that $ratio_2$ and $ratio_3$ are close to 100% for given example.
+From table above one can observe that total point approximation error is the smallest for the largest probability (50%). For very likely, e.g. 99.9%, or unlikely (0.1%) situations approximating binomial distribution with normal leads to >10% point estimate errors.
 
 Finally let's compare cumulative probabilities for different examples of probabilities $p$ and expected values (EV). I have added 95% (black dashed line) and 99% (red dashed line) confidence intervals to show when one can start rejecting null hypothesis using commonly used cut-off levels.
 
@@ -619,7 +651,7 @@ The first thing to notice, that 2-sided hypothesis can't be really tested for lo
 
 Finally let's investigate for different probabilities how much $p_1$ and $ratio_1$ are affected as sample size is increased.
 
-Now let's investigate how these probabilities and errors change as sample size is increased and "success-failure" condition is met.
+Now let's investigate how these probabilities and errors change as sample size is increased and "success-failure" condition is met. For some probabilities these curves are not monotonous, because, you can get exactly 5 expected values with p = 35%. For such cases sample size was floored to nearest integer number, e.g. for 35% probability to get 5 EV one needs X tries. In addition aproximation error was calculated for all cases.
 
 ::: panel-tabset
 ## Ratio 1
@@ -648,7 +680,7 @@ dt[, ratio.1 := round(binom.p1/norm.p1 * 100, 3)]
 # for coloring get probability
 dt[, Probability := paste0(round(p * 100, 1), "%")]
 
-# text message for hover
+# text message for hover (decided not to use this column)
 dt[, text := paste0(Probability, " with ", N, " attempts: ", ratio.1)]
 
 # generate color palette
@@ -664,8 +696,6 @@ fig <- plot_ly(dt,
                y = ~ratio.1,
                color = ~Probability,
                colors = col_vector,
-               text = ~text,
-               hoverinfo = "text",
                line = list(width = 4)) 
 fig <- fig %>% add_lines()
 
@@ -682,7 +712,63 @@ fig
 ## Approximation error
 
 ```{r}
+# generate data.table with expected values and sample probabilities
+probs <- c(0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 0.8, 0.9, 0.99, 0.999)
+dt <- CJ(Sucesses = c(1:50), p = probs)
 
+# get probability and sample size for expected values
+dt[p <= 0.5, N := ceiling(Sucesses / p)]
+dt[p > 0.5, N := ceiling(Sucesses / (1 - p))]
+
+# get number of failures
+dt[, Failures := N - Sucesses]
+
+# ugly, but quick way to calculate approximation error
+for (idx in 1:nrow(dt)){
+  # generate vector
+  x.vect <- 0:dt[idx, N]
+  
+  # select probaiblity
+  p.tmp <- dt[idx, p]
+
+  # get probabilities for both binomial and norm distributions
+  y.binom <- dbinom(x.vect, dt[idx, N], p.tmp)
+  y.norm <- dnorm(x.vect, mean=dt[idx, N] * p.tmp, sd = sqrt(p.tmp * (1 - p.tmp) * dt[idx, N]))
+
+  # sum absolute error
+  y.err <- sum(abs(y.binom - y.norm))
+
+  # add error term
+  dt[idx, tot.abs.error := round(y.err*100, 3)]
+}
+
+# generate color palette
+# code example taken from
+# https://stackoverflow.com/questions/15282580/how-to-generate-a-number-of-most-distinctive-colors-in-r
+n <- length(probs)
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+
+# for coloring get probability
+dt[, Probability := paste0(round(p * 100, 1), "%")]
+
+# generate figure
+fig <- plot_ly(dt,
+               x = ~Sucesses,
+               y = ~tot.abs.error,
+               color = ~Probability,
+               colors = col_vector,
+               line = list(width = 4)) 
+fig <- fig %>% add_lines()
+
+# with log scales
+fig <- layout(fig,
+              hovermode = "x unified",
+              yaxis = list(type = "log", title = "Total absolute error, %"),
+              xaxis = list(title = "Expected sucessess/failures"),
+              legend=list(title=list(text='<b> Probabilities </b>')))
+
+fig
 ```
 
 :::
@@ -696,7 +782,7 @@ One should be very mindful when designing experiments for one-sample binomial te
 
 ## References
 
-Content for this blog post was prepared using following references:
+Content for this blog post was prepared using following resources:
 
 -   https://statistics.laerd.com/spss-tutorials/binomial-test-using-spss-statistics.php
 -   http://mlwiki.org/index.php/Binomial_Proportion_Tests
